@@ -5,9 +5,24 @@
 // ----- Structs ----- //
 //========================
 
+// Slime struct
+typedef struct{
+    UINT8 hp;     // Hp of Slime
+    UINT8 x, y;   // Slime position (x, y)
+}Slime;
+
+// Enemy Struct
+typedef struct{
+    unsigned char type;   // Type of enemy: Rookie, Monster, etc
+    UINT8 stamina;        // Enemy stamina before get tired
+    UINT8 x, y;           // Enemy position (x, y)
+}Enemy;
+
+
 //============================
 // ----- Functions ----- //
 //===========================
+
 // Slime
 // ------ Mechanics
 void Slime_move();
@@ -26,38 +41,46 @@ void vbl_update();
 //================================
 // Slime
 UINT8 state = FALSE;        // For animations (0 - 1)
-UINT8 lastState;
 UINT8 input = 0;
 UINT8 slime_dir = 0;    // 0 up, 1 down, 2 right, 3 left
 UINT8 isMoving = FALSE;     // If slime is moving
 UINT8 pixels_moved = 0; // number of frames that slime is moving by input
 UINT8 frames_anim = 0;  // Use for animations (example, 20 frames = 1 state of sprite in idle_slime)
-
 // Utils
 //----- VBlanks
 UINT8 vbl_count = 0;
+//========================
+// ----- PER STAGE -----//
+//========================
+
+// Slime "instance" (struct)
+Slime player;
+
 
 void main(){
 
+    // Inicializar parametros de personajes
+    player.x = 0;   // para pruebas
+    player.y = 4;
+
     // Inicializar parametros de animaciones
     state = FALSE;
-    lastState = TRUE;
     frames_anim = FALSE;
     // De movimientos
     pixels_moved = 0;
     isMoving = FALSE;
 
-
-    // Set sprites
+    // Set Slime Sprites
     set_sprite_data(0, 9, slime);
     set_sprite_tile(0, 0);
     set_sprite_tile(1, 1);
     set_sprite_tile(2, 2);
     set_sprite_tile(3, 3);
-    move_sprite(0, 80, 90);
-    move_sprite(1, 80, 82);
-    move_sprite(2, 88, 82);
-    move_sprite(3, 88, 90);
+    // Set Slime Position
+    move_sprite(0, 9, 64);
+    move_sprite(1, 9, 56);
+    move_sprite(2, 17, 56);
+    move_sprite(3, 17, 64);
 
     // Flag sprite
     set_sprite_tile(4, 4);
@@ -74,9 +97,11 @@ void main(){
 
     // Loop de juego
     while(1){
+
         if(!vbl_count)
             wait_vbl_done();
         vbl_count = 0;
+
 
         // Solo se puede recibir input cuando slime está quieto
         if(!isMoving)
@@ -103,7 +128,7 @@ void Slime_move(){
             // Reinicia los contadores para animar los pasos del slime y los npc's
             frames_anim = 0;
             state = FALSE;
-            // -------------------------------
+            // ------ TESTING
             scroll_sprite(4, 1, 1);  // Flag de captura de movimiento
         }
     }
@@ -115,24 +140,28 @@ void Slime_move(){
             scroll_sprite(1, 1, 0);
             scroll_sprite(2, 1, 0);
             scroll_sprite(3, 1, 0);
+            player.x++;  // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_LEFT){
             scroll_sprite(0, -1, 0);
             scroll_sprite(1, -1, 0);
             scroll_sprite(2, -1, 0);
             scroll_sprite(3, -1, 0);
+            player.x--;   // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_UP){
             scroll_sprite(0, 0, -1);
             scroll_sprite(1, 0, -1);
             scroll_sprite(2, 0, -1);
             scroll_sprite(3, 0, -1);
+            player.y--;   // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_DOWN){
             scroll_sprite(0, 0, 1);
             scroll_sprite(1, 0, 1);
             scroll_sprite(2, 0, 1);
             scroll_sprite(3, 0, 1);
+            player.y++;    // Mover en coordenadas del mapa
         }
 
         // Se mueve por defecto 16 pixeles
