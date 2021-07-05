@@ -1,4 +1,6 @@
 #include <gb/gb.h>
+#include <stdio.h>
+#include <rand.h>
 #include "Sprites/slime.c"
 #include "Sprites/enemies.c"
 
@@ -26,19 +28,23 @@ typedef struct{
 
 // Slime
 // ------ Mechanics
-void Slime_move();
+void Slime_map_move();
 // ------ Animations
 void Slime_anim_idle();
 void Slime_anim_moving();
 void Slime_animMap_handler();
 // Enemies
 // ------ Mechanics
-// ------ Empty
+// Knight
+void Knight_map_move();
 // ------ Animations
+// Knight
 void Knight_anim_idle();
 void Knight_anim_moving();
-void Knight_anim_handler();
+void Knight_animMap_handler();
 // Utils
+// ----- RANDOM NUMBERS
+void Set_seed_rand();
 // ----- INPUT
 void Input();
 // ----- VBlanks
@@ -48,13 +54,16 @@ void vbl_update();
 // ----- Global Variables ----- //
 //================================
 // Slime
-UINT8 state = FALSE;        // For animations (0 - 1)
-UINT8 input = 0;
-UINT8 slime_dir = 0;    // 0 up, 1 down, 2 right, 3 left
-UINT8 isMoving = FALSE;     // If slime is moving
-UINT8 pixels_moved = 0; // number of frames that slime is moving by input
-UINT8 frames_anim = 0;  // Use for animations (example, 20 frames = 1 state of sprite in idle_slime)
+UINT8 state = FALSE;         // Para animaciones (0 - 1)
+UINT8 input = 0;             // Aqui guardamos el input completo
+UINT8 slime_dir = 0;         // 0 up, 1 down, 2 right, 3 left
+UINT8 isMoving = FALSE;      // Flag TRUE si el Slime se esta moviendo
+UINT8 pixels_moved = 0;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
+UINT8 frames_anim = 0;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
 // Utils
+//----- Random
+UINT8 rand_;
+UINT16 seed;
 //----- VBlanks
 UINT8 vbl_count = 0;
 //========================
@@ -71,8 +80,13 @@ Enemy knight;
 void main(){
 
     // Inicializar parametros de personajes
-    player.x = 0;   // para pruebas
-    player.y = 4;
+    player.x = 9;   // para pruebas
+    player.y = 56;
+
+    // Inicializar parametros de enemigos
+    knight.x = 50;
+    knight.y = 50;
+
 
     // Inicializar parametros de animaciones
     state = FALSE;
@@ -80,6 +94,9 @@ void main(){
     // De movimientos
     pixels_moved = 0;
     isMoving = FALSE;
+    // Inicializar parametros de RANDOM
+    rand_ = 0;
+    seed = 0;
     //==========================
     // Set Slime Sprites
     //==========================
@@ -111,10 +128,12 @@ void main(){
     // Para fluidez
     disable_interrupts();
     add_VBL(vbl_update);
+    add_VBL(Set_seed_rand);
     set_interrupts(VBL_IFLAG);
     enable_interrupts();
 
     SHOW_SPRITES;
+
 
     // Loop de juego
     while(1){
@@ -123,16 +142,19 @@ void main(){
             wait_vbl_done();
         vbl_count = 0;
 
-
+        
         // Solo se puede recibir input cuando slime está quieto
         if(!isMoving)
             input = joypad();
-        Slime_move();
         
-        // Animaciones del Slime
-        //Knight_anim_idle();
-        Knight_anim_handler();
 
+
+        Slime_map_move();
+        
+        // Animaciones del Knight
+        Knight_animMap_handler();
+
+        // Animaciones del Slime
         Slime_animMap_handler();
 
 
@@ -143,7 +165,7 @@ void main(){
 
 }
 
-void Slime_move(){
+void Slime_map_move(){
 
     // Si no se esta moviendo, abierto a recibir inputs de direccion
     if(!isMoving){
@@ -154,6 +176,10 @@ void Slime_move(){
             // Reinicia los contadores para animar los pasos del slime y los npc's
             frames_anim = 0;
             state = FALSE;
+            // AQUI VA EL CAMBIAR (X, Y) DEL SLIME
+            // Get random number for enemy directions moving
+            rand_ = ((UINT8)rand()) % (UINT8)4;
+            //printf("rand = %u", rand_);
             // ------ TESTING
             scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
         }
@@ -161,11 +187,13 @@ void Slime_move(){
     
     // Si se está moviendo, terminar de mover 8 pixeles con la ultima direccion obtenida
     if(isMoving){
+        Knight_map_move();
         if(slime_dir & J_RIGHT){
             scroll_sprite(0, 1, 0);
             scroll_sprite(1, 1, 0);
             scroll_sprite(2, 1, 0);
             scroll_sprite(3, 1, 0);
+            // TO DO: Esto está mal, deberia cambiar una vez. Debe ir en la condición de arriba if(!isMoving)
             player.x++;  // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_LEFT){
@@ -205,6 +233,13 @@ void Slime_move(){
         // Una vez se mueve los 16 pixeles, se puede recibir input de movimiento nuevamente
 
     }
+}
+
+void Set_seed_rand(){
+    seed++;
+    initrand(seed);
+    if(seed == 255)
+        seed = 0;
 }
 
 void Slime_anim_idle(){
@@ -250,11 +285,38 @@ void Slime_anim_moving(){
 }
 
 void Slime_animMap_handler(){
-
     if(isMoving)
         Slime_anim_moving();
     else
         Slime_anim_idle();
+}
+
+void Knight_map_move(){
+    // Mover arriba
+    if(rand_ == 0){
+        scroll_sprite(4, 0, -1);
+        scroll_sprite(5, 0, -1);
+        knight.y -= 1;
+    }
+    // Mover abajo
+    else if(rand_ == 1){
+        scroll_sprite(4, 0, 1);
+        scroll_sprite(5, 0, 1);
+        knight.y += 1;
+    }
+    // Mover Derecha
+    else if(rand_ == 2){
+        // BUG
+        scroll_sprite(4, 1, 0);
+        scroll_sprite(5, 1, 0);
+        knight.x += 1;
+    }
+    else{
+        //BUG
+        scroll_sprite(4, -1, 0);
+        scroll_sprite(5, -1, 0);
+        knight.x -= 1;
+    }
 }
 
 void Knight_anim_idle(){
@@ -273,26 +335,23 @@ void Knight_anim_idle(){
 void Knight_anim_moving(){
     if(frames_anim == 3){
         if(state){
-            //set_sprite_tile(4, 9);
-            //set_sprite_tile(5, 10);
             scroll_sprite(4, 0, -1);
             scroll_sprite(5, 0, -1);
         }
         else{
             scroll_sprite(5, 0, 1);
             scroll_sprite(4, 0, 1);
-            //set_sprite_tile(4, 11);
-            //set_sprite_tile(5, 10);
         }
     }
 }
 
-void Knight_anim_handler(){
+void Knight_animMap_handler(){
     if(isMoving)
         Knight_anim_moving();
     else
         Knight_anim_idle();
 }
+
 
 void vbl_update(){
     vbl_count++;
