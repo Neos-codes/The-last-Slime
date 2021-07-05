@@ -1,5 +1,6 @@
 #include <gb/gb.h>
 #include "Sprites/slime.c"
+#include "Sprites/enemies.c"
 
 //========================
 // ----- Structs ----- //
@@ -30,6 +31,13 @@ void Slime_move();
 void Slime_anim_idle();
 void Slime_anim_moving();
 void Slime_animMap_handler();
+// Enemies
+// ------ Mechanics
+// ------ Empty
+// ------ Animations
+void Knight_anim_idle();
+void Knight_anim_moving();
+void Knight_anim_handler();
 // Utils
 // ----- INPUT
 void Input();
@@ -56,6 +64,9 @@ UINT8 vbl_count = 0;
 // Slime "instance" (struct)
 Slime player;
 
+// Enemies "instances" (struct)
+Enemy knight;
+
 
 void main(){
 
@@ -69,8 +80,9 @@ void main(){
     // De movimientos
     pixels_moved = 0;
     isMoving = FALSE;
-
+    //==========================
     // Set Slime Sprites
+    //==========================
     set_sprite_data(0, 9, slime);
     set_sprite_tile(0, 0);
     set_sprite_tile(1, 1);
@@ -82,9 +94,18 @@ void main(){
     move_sprite(2, 17, 56);
     move_sprite(3, 17, 64);
 
+    //=========================
+    // Set enemy test Sprites
+    //=========================
+    set_sprite_data(9, 3, Enemies);
+    set_sprite_tile(4, 9);
+    set_sprite_tile(5, 10);
+    move_sprite(4, 50, 50);
+    move_sprite(5, 50, 58);
+
     // Flag sprite
-    set_sprite_tile(4, 4);
-    move_sprite(4, 0x8, 0x10);
+    set_sprite_tile(15, 4);
+    move_sprite(15, 0x8, 0x10);
 
 
     // Para fluidez
@@ -109,7 +130,12 @@ void main(){
         Slime_move();
         
         // Animaciones del Slime
+        //Knight_anim_idle();
+        Knight_anim_handler();
+
         Slime_animMap_handler();
+
+
         // Para frames de animacion
         frames_anim++;
 
@@ -129,7 +155,7 @@ void Slime_move(){
             frames_anim = 0;
             state = FALSE;
             // ------ TESTING
-            scroll_sprite(4, 1, 1);  // Flag de captura de movimiento
+            scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
         }
     }
     
@@ -204,7 +230,7 @@ void Slime_anim_idle(){
 
 void Slime_anim_moving(){
 
-    if(frames_anim == 2){
+    if(frames_anim == 3){
         if(state){
             set_sprite_tile(0, 8);
             set_sprite_tile(1, 5);
@@ -229,6 +255,43 @@ void Slime_animMap_handler(){
         Slime_anim_moving();
     else
         Slime_anim_idle();
+}
+
+void Knight_anim_idle(){
+    if(frames_anim == 30){
+        if(state){
+            set_sprite_tile(4, 11);
+            set_sprite_tile(5, 10);
+        }
+        else{
+            set_sprite_tile(4, 9);
+            set_sprite_tile(5, 10);
+        }
+    }
+}
+
+void Knight_anim_moving(){
+    if(frames_anim == 3){
+        if(state){
+            //set_sprite_tile(4, 9);
+            //set_sprite_tile(5, 10);
+            scroll_sprite(4, 0, -1);
+            scroll_sprite(5, 0, -1);
+        }
+        else{
+            scroll_sprite(5, 0, 1);
+            scroll_sprite(4, 0, 1);
+            //set_sprite_tile(4, 11);
+            //set_sprite_tile(5, 10);
+        }
+    }
+}
+
+void Knight_anim_handler(){
+    if(isMoving)
+        Knight_anim_moving();
+    else
+        Knight_anim_idle();
 }
 
 void vbl_update(){
