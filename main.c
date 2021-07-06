@@ -86,8 +86,8 @@ Enemy knight;
 void main(){
 
     // Inicializar parametros de personajes
-    player.x = 9;   // para pruebas
-    player.y = 56;
+    player.x = 1;   // para pruebas
+    player.y = 1;
 
     // Inicializar parametros de enemigos
     knight.x = 50;
@@ -119,10 +119,10 @@ void main(){
     set_sprite_tile(2, 2);
     set_sprite_tile(3, 3);
     // Set Slime Position
-    move_sprite(0, 9, 64);
-    move_sprite(1, 9, 56);
-    move_sprite(2, 17, 56);
-    move_sprite(3, 17, 64);
+    move_sprite(0, 16, 32);
+    move_sprite(1, 16, 24);
+    move_sprite(2, 24, 24);
+    move_sprite(3, 24, 32);
 
     //=========================
     // Set enemy test Sprites
@@ -134,8 +134,8 @@ void main(){
     move_sprite(5, 50, 58);
 
     // Flag sprite
-    set_sprite_tile(15, 4);
-    move_sprite(15, 0x8, 0x10);
+    //set_sprite_tile(15, 4);
+    //move_sprite(15, 0x8, 0x10);
 
 
     // Para fluidez
@@ -195,7 +195,7 @@ void Slime_map_move(){
             rand_ = ((UINT8)rand()) % (UINT8)4;
             //printf("rand = %u", rand_);
             // ------ TESTING
-            scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
+            //scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
         }
     }
     
