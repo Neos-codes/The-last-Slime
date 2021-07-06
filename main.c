@@ -6,7 +6,7 @@
 #include "Sprites/slime.c"
 #include "Sprites/enemies.c"
 // Background tiles
-#include "Tiles_docs/test_bkg.c"
+#include "Background_Tiles/test_bkg.c"
 // Backgrounds
 #include "Backgrounds/testBkg.c"
 
