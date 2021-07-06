@@ -1,8 +1,14 @@
+// Utils
 #include <gb/gb.h>
 #include <stdio.h>
 #include <rand.h>
+// Sprites
 #include "Sprites/slime.c"
 #include "Sprites/enemies.c"
+// Background tiles
+#include "Tiles_docs/test_bkg.c"
+// Backgrounds
+#include "Backgrounds/testBkg.c"
 
 //========================
 // ----- Structs ----- //
@@ -97,6 +103,13 @@ void main(){
     // Inicializar parametros de RANDOM
     rand_ = 0;
     seed = 0;
+
+    //==========================
+    // Set background tiles
+    //==========================
+    set_bkg_data(0, 4, test_bkg);
+    set_bkg_tiles(0, 0, 30, 30, testBkg);
+
     //==========================
     // Set Slime Sprites
     //==========================
@@ -133,6 +146,8 @@ void main(){
     enable_interrupts();
 
     SHOW_SPRITES;
+    SHOW_BKG;
+    DISPLAY_ON;
 
 
     // Loop de juego
@@ -162,7 +177,6 @@ void main(){
         frames_anim++;
 
     }
-
 }
 
 void Slime_map_move(){
