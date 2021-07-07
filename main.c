@@ -17,7 +17,7 @@
 // Slime struct
 typedef struct{
     UINT8 hp;     // Hp of Slime
-    UINT8 x, y;   // Slime position (x, y)
+    UINT16 x, y;   // Slime position (x, y)
 }Slime;
 
 // Enemy Struct
@@ -35,6 +35,7 @@ typedef struct{
 // Slime
 // ------ Mechanics
 void Slime_map_move();
+void Slime_map_collision();
 // ------ Animations
 void Slime_anim_idle();
 void Slime_anim_moving();
@@ -119,10 +120,10 @@ void main(){
     set_sprite_tile(2, 2);
     set_sprite_tile(3, 3);
     // Set Slime Position
-    move_sprite(0, 16, 32);
-    move_sprite(1, 16, 24);
-    move_sprite(2, 24, 24);
-    move_sprite(3, 24, 32);
+    move_sprite(0, 8 + 8 * player.x, 8 + 8 * (player.y + 2));
+    move_sprite(1, 8 + 8 * player.x, 8 + 8 * (player.y + 1));
+    move_sprite(2, 8 + 8 * (player.x + 1), 8 + 8 * (player.y + 1));
+    move_sprite(3, 8 + 8 * (player.x + 1), 8 + 8 * (player.y + 2));
 
     //=========================
     // Set enemy test Sprites
@@ -162,8 +163,6 @@ void main(){
         if(!isMoving)
             input = joypad();
         
-
-
         Slime_map_move();
         
         // Animaciones del Knight
@@ -184,18 +183,27 @@ void Slime_map_move(){
     // Si no se esta moviendo, abierto a recibir inputs de direccion
     if(!isMoving){
         if(input & J_RIGHT || input & J_LEFT || input & J_UP || input & J_DOWN){
-            isMoving = TRUE;
-            slime_dir = input;   // Se guarda el ultimo input de direccion
+            //isMoving = TRUE;
             // ----- Coordinacion de animaciones
-            // Reinicia los contadores para animar los pasos del slime y los npc's
-            frames_anim = 0;
-            state = FALSE;
-            // AQUI VA EL CAMBIAR (X, Y) DEL SLIME
-            // Get random number for enemy directions moving
+            // Guardar direccion slime
+            if(input & J_RIGHT) slime_dir = 0x01U;
+            else if(input & J_LEFT) slime_dir = 0x02U;
+            else if(input & J_UP) slime_dir = 0x04U;
+            else if(input & J_DOWN) slime_dir = 0x08U;
+            // Reinicia los contadores para animar los pasos del slime y los npc's          
+            Slime_map_collision();
+            
+            if(isMoving){
+                frames_anim = 0;
+                state = FALSE;
+            }
+
+            // Generar una direccion random para los enemigos
             rand_ = ((UINT8)rand()) % (UINT8)4;
             //printf("rand = %u", rand_);
             // ------ TESTING
-            //scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
+            //if(isMoving)
+            //    scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
         }
     }
     
@@ -207,29 +215,24 @@ void Slime_map_move(){
             scroll_sprite(1, 1, 0);
             scroll_sprite(2, 1, 0);
             scroll_sprite(3, 1, 0);
-            // TO DO: Esto está mal, deberia cambiar una vez. Debe ir en la condición de arriba if(!isMoving)
-            player.x++;  // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_LEFT){
             scroll_sprite(0, -1, 0);
             scroll_sprite(1, -1, 0);
             scroll_sprite(2, -1, 0);
             scroll_sprite(3, -1, 0);
-            player.x--;   // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_UP){
             scroll_sprite(0, 0, -1);
             scroll_sprite(1, 0, -1);
             scroll_sprite(2, 0, -1);
             scroll_sprite(3, 0, -1);
-            player.y--;   // Mover en coordenadas del mapa
         }
         else if(slime_dir & J_DOWN){
             scroll_sprite(0, 0, 1);
             scroll_sprite(1, 0, 1);
             scroll_sprite(2, 0, 1);
             scroll_sprite(3, 0, 1);
-            player.y++;    // Mover en coordenadas del mapa
         }
 
         // Se mueve por defecto 16 pixeles
@@ -247,6 +250,38 @@ void Slime_map_move(){
         // Una vez se mueve los 16 pixeles, se puede recibir input de movimiento nuevamente
 
     }
+}
+
+void Slime_map_collision(){
+    if(slime_dir == 0x04U){
+        if(testBkg[player.x + 30 * (player.y - 1)] != 0x03){
+            isMoving = TRUE;
+            player.y -= 2;
+            return;
+        }
+    }
+    else if(slime_dir == 0x08U){
+        if(testBkg[player.x + 30 * (player.y + 2)] != 0x03){
+            isMoving = TRUE;
+            player.y += 2;
+            return;
+        }
+    }
+    else if(slime_dir == 0x01U){
+        if(testBkg[player.x + 2 + 30 * player.y] != 0x03){
+            isMoving = TRUE;
+            player.x += 2;
+            return;
+        }
+    }
+    else if(slime_dir == 0x02U){
+        if(testBkg[player.x - 1 + 30 * player.y] != 0x03){
+            isMoving = TRUE;
+            player.x -= 2;
+            return;
+        }
+    }
+    
 }
 
 void Set_seed_rand(){
@@ -365,7 +400,6 @@ void Knight_animMap_handler(){
     else
         Knight_anim_idle();
 }
-
 
 void vbl_update(){
     vbl_count++;
