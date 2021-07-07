@@ -381,15 +381,28 @@ void Knight_anim_idle(){
     }
 }
 
+// TO DO: Solucionar problema de animacion cuando sube o baja
 void Knight_anim_moving(){
     if(frames_anim == 3){
-        if(state){
-            scroll_sprite(4, 0, -1);
-            scroll_sprite(5, 0, -1);
+        if(rand_ == 2 || rand_ == 3){
+            if(state){
+                scroll_sprite(4, 0, -1);
+                scroll_sprite(5, 0, -1);
+            }
+            else{
+                scroll_sprite(5, 0, 1);
+                scroll_sprite(4, 0, 1);
+            }
         }
         else{
-            scroll_sprite(5, 0, 1);
-            scroll_sprite(4, 0, 1);
+            if(state){
+                scroll_sprite(4, -1, 0);
+                scroll_sprite(5, -1, 0);
+            }
+            else{
+                scroll_sprite(5, 1, 0);
+                scroll_sprite(4, 1, 0);
+            }
         }
     }
 }
