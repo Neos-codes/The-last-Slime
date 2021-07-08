@@ -32,6 +32,9 @@ typedef struct{
 // ----- Functions ----- //
 //===========================
 
+// Background
+void Scroll_bkg();
+
 // Slime
 // ------ Mechanics
 void Slime_map_move();
@@ -67,6 +70,9 @@ UINT8 slime_dir = 0;         // 0 up, 1 down, 2 right, 3 left
 UINT8 isMoving = FALSE;      // Flag TRUE si el Slime se esta moviendo
 UINT8 pixels_moved = 0;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
 UINT8 frames_anim = 0;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
+// Background
+UINT8 bkg_x, bkg_y;
+UINT8 scroll;
 // Utils
 //----- Random
 UINT8 rand_;
@@ -85,6 +91,11 @@ Enemy knight;
 
 
 void main(){
+
+    // Inicializar parametros del background
+    bkg_x = 0;
+    bkg_y = 0;
+    scroll = FALSE;
 
     // Inicializar parametros de personajes
     player.x = 1;   // para pruebas
@@ -178,6 +189,28 @@ void main(){
     }
 }
 
+void Check_scroll_bkg(){
+    // 160 debe ser width_map - 80
+    // dir = RIGHT &&  MITAD DE PANTALLA  && MEDIA PANTALLA ANTES DEL BORDE DERECHO DEL MAPA
+    if(slime_dir == J_RIGHT && (player.x + 2) * 8 - bkg_x > 56 && player.x * 8 < 144){
+        scroll = TRUE;
+        bkg_x += 8;
+    }
+    // dir = LEFT && MEDIA PANTALLA SOBRE BORDE IZQUIERDO  
+    else if(slime_dir == J_LEFT && player.x * 8 > 80 && (player.x + 1) * 8 - bkg_x < 56){
+        scroll = TRUE;
+        bkg_x -= 8;
+    }
+    else if(slime_dir == J_DOWN && (player.y + 2) * 8 - bkg_y > 48 && player.y * 8 < 144){
+        scroll = TRUE;
+        bkg_y += 8;
+    }
+    else if(slime_dir == J_UP && (player.y + 1) * 8 - bkg_y < 48 && player.y * 8 > 72){
+        scroll = TRUE;
+        bkg_y -= 8;
+    }
+}
+
 void Slime_map_move(){
 
     // Si no se esta moviendo, abierto a recibir inputs de direccion
@@ -190,9 +223,11 @@ void Slime_map_move(){
             else if(input & J_LEFT) slime_dir = 0x02U;
             else if(input & J_UP) slime_dir = 0x04U;
             else if(input & J_DOWN) slime_dir = 0x08U;
-            // Reinicia los contadores para animar los pasos del slime y los npc's          
+       
+            // Revisar si se puede mover en la dirección seleccionada
             Slime_map_collision();
             
+            // Reiniciar los contadores para animar los pasos del slime y los npc's   
             if(isMoving){
                 frames_anim = 0;
                 state = FALSE;
@@ -211,28 +246,44 @@ void Slime_map_move(){
     if(isMoving){
         Knight_map_move();
         if(slime_dir & J_RIGHT){
-            scroll_sprite(0, 1, 0);
-            scroll_sprite(1, 1, 0);
-            scroll_sprite(2, 1, 0);
-            scroll_sprite(3, 1, 0);
+            if(!scroll){
+                scroll_sprite(0, 1, 0);
+                scroll_sprite(1, 1, 0);
+                scroll_sprite(2, 1, 0);
+                scroll_sprite(3, 1, 0);
+            }
+            else
+                scroll_bkg(1, 0);
         }
         else if(slime_dir & J_LEFT){
-            scroll_sprite(0, -1, 0);
-            scroll_sprite(1, -1, 0);
-            scroll_sprite(2, -1, 0);
-            scroll_sprite(3, -1, 0);
+            if(!scroll){
+                scroll_sprite(0, -1, 0);
+                scroll_sprite(1, -1, 0);
+                scroll_sprite(2, -1, 0);
+                scroll_sprite(3, -1, 0);
+            }
+            else
+                scroll_bkg(-1, 0);
         }
         else if(slime_dir & J_UP){
-            scroll_sprite(0, 0, -1);
-            scroll_sprite(1, 0, -1);
-            scroll_sprite(2, 0, -1);
-            scroll_sprite(3, 0, -1);
+            if(!scroll){
+                scroll_sprite(0, 0, -1);
+                scroll_sprite(1, 0, -1);
+                scroll_sprite(2, 0, -1);
+                scroll_sprite(3, 0, -1);
+            }
+            else
+                scroll_bkg(0, -1);
         }
         else if(slime_dir & J_DOWN){
-            scroll_sprite(0, 0, 1);
-            scroll_sprite(1, 0, 1);
-            scroll_sprite(2, 0, 1);
-            scroll_sprite(3, 0, 1);
+            if(!scroll){
+                scroll_sprite(0, 0, 1);
+                scroll_sprite(1, 0, 1);
+                scroll_sprite(2, 0, 1);
+                scroll_sprite(3, 0, 1);
+            }
+            else
+                scroll_bkg(0, 1);
         }
 
         // Se mueve por defecto 16 pixeles
@@ -246,6 +297,8 @@ void Slime_map_move(){
             frames_anim = 0;
             state = FALSE;
             // ----------------------------
+            // scroll bkg flag vuelve a ser falso
+            scroll = FALSE;
         }
         // Una vez se mueve los 16 pixeles, se puede recibir input de movimiento nuevamente
 
@@ -253,31 +306,41 @@ void Slime_map_move(){
 }
 
 void Slime_map_collision(){
-    if(slime_dir == 0x04U){
+    if(slime_dir == 0x04U){   // UP
         if(testBkg[player.x + 30 * (player.y - 1)] != 0x03){
             isMoving = TRUE;
+            Check_scroll_bkg();
             player.y -= 2;
+            bkg_y -= 8;
             return;
         }
     }
-    else if(slime_dir == 0x08U){
+    else if(slime_dir == 0x08U){  // DOWN
         if(testBkg[player.x + 30 * (player.y + 2)] != 0x03){
             isMoving = TRUE;
+            Check_scroll_bkg();
             player.y += 2;
+            bkg_y += 8;
             return;
         }
     }
-    else if(slime_dir == 0x01U){
+    else if(slime_dir == 0x01U){  // RIGHT
         if(testBkg[player.x + 2 + 30 * player.y] != 0x03){
             isMoving = TRUE;
+            // Si está a la mitad de la pantalla, se mueve el mapa no el slime
+            Check_scroll_bkg();
             player.x += 2;
+            bkg_x += 8;
             return;
         }
     }
-    else if(slime_dir == 0x02U){
+    else if(slime_dir == 0x02U){  // LEFT
         if(testBkg[player.x - 1 + 30 * player.y] != 0x03){
             isMoving = TRUE;
+            // Si está a la mitad de la pantalla, se mueve el mapa no el slime
+            Check_scroll_bkg();
             player.x -= 2;
+            bkg_x -= 8;
             return;
         }
     }
@@ -381,7 +444,6 @@ void Knight_anim_idle(){
     }
 }
 
-// TO DO: Solucionar problema de animacion cuando sube o baja
 void Knight_anim_moving(){
     if(frames_anim == 3){
         if(rand_ == 2 || rand_ == 3){
