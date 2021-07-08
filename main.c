@@ -24,7 +24,8 @@ typedef struct{
 typedef struct{
     unsigned char type;   // Type of enemy: Rookie, Monster, etc
     UINT8 stamina;        // Enemy stamina before get tired
-    UINT8 x, y;           // Enemy position (x, y)
+    UINT16 x, y;           // Enemy position (x, y)
+    UINT8 isMoving;       // True when there is no obstacle in his direction
 }Enemy;
 
 
@@ -46,6 +47,7 @@ void Slime_animMap_handler();
 // Enemies
 // ------ Mechanics
 // Knight
+void Check_2x1_collisions();
 void Knight_map_move();
 // ------ Animations
 // Knight
@@ -102,8 +104,9 @@ void main(){
     player.y = 1;
 
     // Inicializar parametros de enemigos
-    knight.x = 50;
-    knight.y = 50;
+    knight.x = 5;
+    knight.y = 5;
+    knight.isMoving = FALSE;
 
 
     // Inicializar parametros de animaciones
@@ -131,10 +134,10 @@ void main(){
     set_sprite_tile(2, 2);
     set_sprite_tile(3, 3);
     // Set Slime Position
-    move_sprite(0, 8 + 8 * player.x, 8 + 8 * (player.y + 2));
-    move_sprite(1, 8 + 8 * player.x, 8 + 8 * (player.y + 1));
-    move_sprite(2, 8 + 8 * (player.x + 1), 8 + 8 * (player.y + 1));
-    move_sprite(3, 8 + 8 * (player.x + 1), 8 + 8 * (player.y + 2));
+    move_sprite(0, 8 + 8 * player.x, 16 + 8 * (player.y + 1));
+    move_sprite(1, 8 + 8 * player.x, 16 + 8 * player.y);
+    move_sprite(2, 8 + 8 * (player.x + 1), 16 + 8 * player.y);
+    move_sprite(3, 8 + 8 * (player.x + 1), 16 + 8 * (player.y + 1));
 
     //=========================
     // Set enemy test Sprites
@@ -142,8 +145,8 @@ void main(){
     set_sprite_data(9, 3, Enemies);
     set_sprite_tile(4, 9);
     set_sprite_tile(5, 10);
-    move_sprite(4, 50, 50);
-    move_sprite(5, 50, 58);
+    move_sprite(4, 8 + 8 * knight.x, 16 + 8 * knight.y);
+    move_sprite(5, 8 + 8 * knight.x, 16 + 8 * (knight.y + 1));
 
     // Flag sprite
     //set_sprite_tile(15, 4);
@@ -229,13 +232,13 @@ void Slime_map_move(){
             
             // Reiniciar los contadores para animar los pasos del slime y los npc's   
             if(isMoving){
+                // Generar una direccion random para los enemigos
+                rand_ = ((UINT8)rand()) % (UINT8)4;
+                //printf("rand = %u", rand_);
+                Check_2x1_collisions();
                 frames_anim = 0;
                 state = FALSE;
             }
-
-            // Generar una direccion random para los enemigos
-            rand_ = ((UINT8)rand()) % (UINT8)4;
-            //printf("rand = %u", rand_);
             // ------ TESTING
             //if(isMoving)
             //    scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
@@ -244,7 +247,10 @@ void Slime_map_move(){
     
     // Si se está moviendo, terminar de mover 8 pixeles con la ultima direccion obtenida
     if(isMoving){
-        Knight_map_move();
+        
+        if(knight.isMoving)
+            Knight_map_move();
+        
         if(slime_dir & J_RIGHT){
             if(!scroll){
                 scroll_sprite(0, 1, 0);
@@ -292,6 +298,7 @@ void Slime_map_move(){
             slime_dir = 0;
             pixels_moved = 0;
             isMoving = FALSE;
+            knight.isMoving = FALSE;
             // ----- Coordinacion de animacion
             // Reinicia los contadores para pasar a animar el idle del Slime y los npc's
             frames_anim = 0;
@@ -311,7 +318,7 @@ void Slime_map_collision(){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y -= 2;
-            bkg_y -= 8;
+            bkg_y -= 8;     // FIX THIS
             return;
         }
     }
@@ -320,7 +327,7 @@ void Slime_map_collision(){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y += 2;
-            bkg_y += 8;
+            bkg_y += 8;     // FIX THIS
             return;
         }
     }
@@ -330,7 +337,7 @@ void Slime_map_collision(){
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x += 2;
-            bkg_x += 8;
+            bkg_x += 8;     // FIX THIS
             return;
         }
     }
@@ -340,7 +347,7 @@ void Slime_map_collision(){
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x -= 2;
-            bkg_x -= 8;
+            bkg_x -= 8;     // FIX THIS
             return;
         }
     }
@@ -403,31 +410,61 @@ void Slime_animMap_handler(){
         Slime_anim_idle();
 }
 
+void Check_2x1_collisions(){
+    if(rand_ == 0){ // UP
+        if(testBkg[knight.x + 30 * (knight.y - 1)] != 0x03){  // BIEN
+            knight.isMoving = TRUE;
+            knight.y -= 2;
+        }
+        else
+            knight.isMoving = FALSE;
+    }
+    else if(rand_ == 1){ // DOWN
+        if(testBkg[knight.x + 30 * (knight.y + 2)] != 0x03){  // BIEN
+            knight.isMoving = TRUE;
+            knight.y += 2;
+        }
+        else
+            knight.isMoving = FALSE;
+    }
+    else if(rand_ == 2){ // RIGHT
+        if(testBkg[knight.x + 2 + 30 * knight.y] != 0x03){
+            knight.isMoving = TRUE;
+            knight.x += 2;
+        }
+        else
+            knight.isMoving = FALSE;
+    }
+    else if(rand_ == 3){ // LEFT
+        if(testBkg[knight.x - 1 + 30 * knight.y] != 0x03){
+            knight.isMoving = TRUE;
+            knight.x -= 2;
+        }
+        else
+            knight.isMoving = FALSE;
+    }
+    //knight.isMoving = FALSE;
+}
+
 void Knight_map_move(){
     // Mover arriba
     if(rand_ == 0){
         scroll_sprite(4, 0, -1);
         scroll_sprite(5, 0, -1);
-        knight.y -= 1;
     }
     // Mover abajo
     else if(rand_ == 1){
         scroll_sprite(4, 0, 1);
         scroll_sprite(5, 0, 1);
-        knight.y += 1;
     }
     // Mover Derecha
     else if(rand_ == 2){
-        // BUG
         scroll_sprite(4, 1, 0);
         scroll_sprite(5, 1, 0);
-        knight.x += 1;
     }
     else{
-        //BUG
         scroll_sprite(4, -1, 0);
         scroll_sprite(5, -1, 0);
-        knight.x -= 1;
     }
 }
 
@@ -470,7 +507,7 @@ void Knight_anim_moving(){
 }
 
 void Knight_animMap_handler(){
-    if(isMoving)
+    if(isMoving && knight.isMoving)
         Knight_anim_moving();
     else
         Knight_anim_idle();
