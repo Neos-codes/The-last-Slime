@@ -73,7 +73,7 @@ UINT8 isMoving = FALSE;      // Flag TRUE si el Slime se esta moviendo
 UINT8 pixels_moved = 0;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
 UINT8 frames_anim = 0;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
 // Background
-UINT8 bkg_x, bkg_y;
+UINT16 bkg_x, bkg_y;
 UINT8 scroll;
 // Utils
 //----- Random
@@ -201,7 +201,7 @@ void Check_scroll_bkg(){
         bkg_x += 16;
     }
     // dir = LEFT                  Tope Izquierdo         Distancia player y bkg   
-    else if(slime_dir == J_LEFT && player.x * 8 >= 64 && (player.x - 1) * 8 - bkg_x <= 56){
+    else if(slime_dir == J_LEFT && player.x * 8 > 72 && player.x * 8 - bkg_x <= 72){
         scroll = TRUE;
         bkg_x -= 16;
     }
