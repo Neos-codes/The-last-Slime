@@ -205,11 +205,13 @@ void Check_scroll_bkg(){
         scroll = TRUE;
         bkg_x -= 16;
     }
-    else if(slime_dir == J_DOWN && 8 * player.y < 64 && 8 * player.y - bkg_y > 48){
+    //                             Tope inferior           Distancia player y bkg
+    else if(slime_dir == J_DOWN && 8 * player.y < 160 && 8 * player.y - bkg_y > 64){
         scroll = TRUE;
         bkg_y += 16;
     }
-    else if(slime_dir == J_UP && 8 * player.y > 48 && 8 * player.y - bkg_y > 48){
+    //                             Tope Superior
+    else if(slime_dir == J_UP && 8 * player.y > 72 && 8 * player.y - bkg_y < 64){
         scroll = TRUE;
         bkg_y -= 16;
     }
