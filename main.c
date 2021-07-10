@@ -195,22 +195,23 @@ void main(){
 void Check_scroll_bkg(){
     // 160 debe ser width_map - 80
     // dir = RIGHT &&  MITAD DE PANTALLA  && MEDIA PANTALLA ANTES DEL BORDE DERECHO DEL MAPA
-    if(slime_dir == J_RIGHT && (player.x + 2) * 8 - bkg_x > 56 && player.x * 8 < 144){
+    // BUGS
+    if(slime_dir == J_RIGHT && 8 * player.x < 144 && 8 * player.x - bkg_x > 72){
         scroll = TRUE;
-        bkg_x += 8;
+        bkg_x += 16;
     }
-    // dir = LEFT && MEDIA PANTALLA SOBRE BORDE IZQUIERDO  
-    else if(slime_dir == J_LEFT && player.x * 8 > 80 && (player.x + 1) * 8 - bkg_x < 56){
+    // dir = LEFT                  Tope Izquierdo         Distancia player y bkg   
+    else if(slime_dir == J_LEFT && player.x * 8 >= 64 && (player.x - 1) * 8 - bkg_x <= 56){
         scroll = TRUE;
-        bkg_x -= 8;
+        bkg_x -= 16;
     }
-    else if(slime_dir == J_DOWN && (player.y + 2) * 8 - bkg_y > 48 && player.y * 8 < 144){
+    else if(slime_dir == J_DOWN && 8 * player.y < 64 && 8 * player.y - bkg_y > 48){
         scroll = TRUE;
-        bkg_y += 8;
+        bkg_y += 16;
     }
-    else if(slime_dir == J_UP && (player.y + 1) * 8 - bkg_y < 48 && player.y * 8 > 72){
+    else if(slime_dir == J_UP && 8 * player.y > 48 && 8 * player.y - bkg_y > 48){
         scroll = TRUE;
-        bkg_y -= 8;
+        bkg_y -= 16;
     }
 }
 
@@ -318,7 +319,7 @@ void Slime_map_collision(){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y -= 2;
-            bkg_y -= 8;     // FIX THIS
+            //bkg_y -= 8;     // FIX THIS
             return;
         }
     }
@@ -327,7 +328,7 @@ void Slime_map_collision(){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y += 2;
-            bkg_y += 8;     // FIX THIS
+            //bkg_y += 8;     // FIX THIS
             return;
         }
     }
@@ -337,7 +338,7 @@ void Slime_map_collision(){
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x += 2;
-            bkg_x += 8;     // FIX THIS
+            //bkg_x += 8;     // FIX THIS
             return;
         }
     }
@@ -347,7 +348,7 @@ void Slime_map_collision(){
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x -= 2;
-            bkg_x -= 8;     // FIX THIS
+            //bkg_x -= 8;     // FIX THIS
             return;
         }
     }
