@@ -28,6 +28,7 @@ struct Enemy{
     UINT8 stamina;        // Enemy stamina before get tired
     UINT16 x, y;           // Enemy position (x, y)
     UINT8 isMoving;       // True when there is no obstacle in his direction
+    UINT8 sprite;         // Primer sprite del enemigo
 };
 
 
@@ -50,7 +51,7 @@ void Slime_animMap_handler();
 // ------ Mechanics
 // Knight
 void Check_2x1_collisions();
-void Knight_map_move();
+void Enemy_2x1_map_move(struct Enemy *enemy);
 // ------ Animations
 // Knight
 void Knight_anim_idle();
@@ -118,6 +119,8 @@ void main(){
     // Inicializar parametros de enemigos
     knight.x = 5;
     knight.y = 5;
+    knight.sprite = 4;
+    //knight.sprites[1] = 5;
     knight.isMoving = FALSE;
 
 
@@ -239,7 +242,7 @@ void Slime_map_move(){
     // Si se está moviendo, terminar de mover 8 pixeles con la ultima direccion obtenida
     if(isMoving){
         
-        Knight_map_move();
+        Enemy_2x1_map_move(&knight);
         
         if(slime_dir & J_RIGHT){
             if(!scroll){
@@ -436,116 +439,114 @@ void Check_2x1_collisions(){
     //knight.isMoving = FALSE;
 }
 
-// BUGS AL HACER SCROLLS     TO DO
-
-void Knight_map_move(){
+void Enemy_2x1_map_move(struct Enemy *enemy){
     // Si el enemigo no se mueve, pero hay scroll, debe ir en direccion contraria
     
-    if(!knight.isMoving && scroll){    // Esta parte no tiene bugs
+    if(!enemy -> isMoving && scroll){    // Esta parte no tiene bugs
         if(slime_dir == J_UP){
-            scroll_sprite(4, 0, 1);
-            scroll_sprite(5, 0, 1);
+            scroll_sprite(enemy -> sprite, 0, 1);
+            scroll_sprite(enemy -> sprite + 1, 0, 1);
         }
         else if(slime_dir == J_DOWN){
-            scroll_sprite(4, 0, -1);
-            scroll_sprite(5, 0, -1);
+            scroll_sprite(enemy -> sprite, 0, -1);
+            scroll_sprite(enemy -> sprite + 1, 0, -1);
         }
         else if(slime_dir == J_RIGHT){
-            scroll_sprite(4, -1, 0);
-            scroll_sprite(5, -1, 0);
+            scroll_sprite(enemy -> sprite, -1, 0);
+            scroll_sprite(enemy -> sprite + 1, -1, 0);
         }
         else if(slime_dir == J_LEFT){
-            scroll_sprite(4, 1, 0);
-            scroll_sprite(5, 1, 0);
+            scroll_sprite(enemy -> sprite, 1, 0);
+            scroll_sprite(enemy -> sprite + 1, 1, 0);
         }
     }
     // Si hay movimiento, debe corresponder con la dirección de scroll si es que hay scroll
-    else if(knight.isMoving){    // Esta parte si tiene BUGS
+    else if(enemy -> isMoving){    // Esta parte si tiene BUGS
         // Mover arriba
         if(rand_ == 0){
             if(scroll){
                 if(slime_dir == J_DOWN){
-                    scroll_sprite(4, 0, -2);
-                    scroll_sprite(5, 0, -2);
+                    scroll_sprite(enemy -> sprite, 0, -2);
+                    scroll_sprite(enemy -> sprite + 1, 0, -2);
                 }
                 else if(slime_dir == J_RIGHT){
-                    scroll_sprite(4, -1, -1);
-                    scroll_sprite(5, -1, -1);
+                    scroll_sprite(enemy -> sprite, -1, -1);
+                    scroll_sprite(enemy -> sprite + 1, -1, -1);
                 }
                 else if (slime_dir == J_LEFT){
-                scroll_sprite(4, 1, -1);
-                scroll_sprite(5, 1, -1);
+                scroll_sprite(enemy -> sprite, 1, -1);
+                scroll_sprite(enemy -> sprite + 1, 1, -1);
                 }
             }
             else{
                 // Se mueve normal hacia arriba (sin scroll)
-                scroll_sprite(4, 0, -1);
-                scroll_sprite(5, 0, -1);
+                scroll_sprite(enemy -> sprite, 0, -1);
+                scroll_sprite(enemy -> sprite + 1, 0, -1);
             }
         }
         // Mover abajo
         else if(rand_ == 1){
             if(scroll){
                 if(slime_dir == J_UP){
-                    scroll_sprite(4, 0, 2);
-                    scroll_sprite(5, 0, 2);
+                    scroll_sprite(enemy -> sprite, 0, 2);
+                    scroll_sprite(enemy -> sprite + 1, 0, 2);
                 }   // No se queda en su lugar
                 else if(slime_dir == J_RIGHT){
-                    scroll_sprite(4, -1, 1);
-                    scroll_sprite(5, -1, 1);
+                    scroll_sprite(enemy -> sprite, -1, 1);
+                    scroll_sprite(enemy -> sprite + 1, -1, 1);
                 }
                 else if(slime_dir == J_LEFT){  // LEFT
-                scroll_sprite(4, 1, 1);
-                scroll_sprite(5, 1, 1);
+                scroll_sprite(enemy -> sprite, 1, 1);
+                scroll_sprite(enemy -> sprite + 1, 1, 1);
                 }
             }
             else{
-                scroll_sprite(4, 0, 1);
-                scroll_sprite(5, 0, 1);
+                scroll_sprite(enemy -> sprite, 0, 1);
+                scroll_sprite(enemy -> sprite + 1, 0, 1);
             }
         }
         // Mover Derecha
         else if(rand_ == 2){
             if(scroll){
                 if(slime_dir == J_UP){
-                    scroll_sprite(4, 1, 1);
-                    scroll_sprite(5, 1, 1);
+                    scroll_sprite(enemy -> sprite, 1, 1);
+                    scroll_sprite(enemy -> sprite + 1, 1, 1);
                     
                 }
                 else if(slime_dir == J_DOWN){
-                    scroll_sprite(4, 1, -1);
-                    scroll_sprite(5, 1, -1);
+                    scroll_sprite(enemy -> sprite, 1, -1);
+                    scroll_sprite(enemy -> sprite + 1, 1, -1);
                 }
                 else if(slime_dir == J_LEFT){  // LEFT
-                scroll_sprite(4, 2, 0);
-                scroll_sprite(5, 2, 0);
+                scroll_sprite(enemy -> sprite, 2, 0);
+                scroll_sprite(enemy -> sprite + 1, 2, 0);
                 }
             }
             else{
-                scroll_sprite(4, 1, 0);
-                scroll_sprite(5, 1, 0);
+                scroll_sprite(enemy -> sprite, 1, 0);
+                scroll_sprite(enemy -> sprite + 1, 1, 0);
             }
 
         }
         else{ // Izquierda
         if(scroll){
                 if(slime_dir == J_UP){
-                    scroll_sprite(4, -1, 1);
-                    scroll_sprite(5, -1, 1);
+                    scroll_sprite(enemy -> sprite, -1, 1);
+                    scroll_sprite(enemy -> sprite + 1, -1, 1);
                     
                 }
                 else if(slime_dir == J_DOWN){
-                    scroll_sprite(4, -1, -1);
-                    scroll_sprite(5, -1, -1);
+                    scroll_sprite(enemy -> sprite, -1, -1);
+                    scroll_sprite(enemy -> sprite + 1, -1, -1);
                 }
                 else if(slime_dir == J_RIGHT){  // LEFT
-                    scroll_sprite(4, -2, 0);
-                    scroll_sprite(5, -2, 0);
+                    scroll_sprite(enemy -> sprite, -2, 0);
+                    scroll_sprite(enemy -> sprite + 1, -2, 0);
                 }
             }
             else{
-                scroll_sprite(4, -1, 0);
-                scroll_sprite(5, -1, 0);
+                scroll_sprite(enemy -> sprite, -1, 0);
+                scroll_sprite(enemy -> sprite + 1, -1, 0);
             }
         }
     }
