@@ -8,26 +8,27 @@
 // Background tiles
 #include "Background_Tiles/test_bkg.c"
 // Backgrounds
-//#include "Backgrounds/testBkg.c"
+//#include "Backgrounds/testMap.c"
 
-extern unsigned char testBkg [];
+extern unsigned char testMap [];
+extern void Gameloop();
 //========================
 // ----- Structs ----- //
 //========================
 
 // Slime struct
-typedef struct{
+struct Slime{
     UINT8 hp;     // Hp of Slime
     UINT16 x, y;   // Slime position (x, y)
-}Slime;
+};
 
 // Enemy Struct
-typedef struct{
+struct Enemy{
     unsigned char type;   // Type of enemy: Rookie, Monster, etc
     UINT8 stamina;        // Enemy stamina before get tired
     UINT16 x, y;           // Enemy position (x, y)
     UINT8 isMoving;       // True when there is no obstacle in his direction
-}Enemy;
+};
 
 
 //============================
@@ -67,12 +68,12 @@ void vbl_update();
 // ----- Global Variables ----- //
 //================================
 // Slime
-UINT8 state = FALSE;         // Para animaciones (0 - 1)
-UINT8 input = 0;             // Aqui guardamos el input completo
-UINT8 slime_dir = 0;         // 0 up, 1 down, 2 right, 3 left
-UINT8 isMoving = FALSE;      // Flag TRUE si el Slime se esta moviendo
-UINT8 pixels_moved = 0;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
-UINT8 frames_anim = 0;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
+UINT8 state;             // Para animaciones (0 - 1)
+UINT8 input;             // Aqui guardamos el input completo
+UINT8 slime_dir;         // 0 up, 1 down, 2 right, 3 left
+UINT8 isMoving;          // Flag TRUE si el Slime se esta moviendo
+UINT8 pixels_moved;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
+UINT8 frames_anim;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
 // Background
 UINT16 bkg_x, bkg_y;
 UINT8 scroll;
@@ -81,19 +82,29 @@ UINT8 scroll;
 UINT8 rand_;
 UINT16 seed;
 //----- VBlanks
-UINT8 vbl_count = 0;
+UINT8 vbl_count;
 //========================
 // ----- PER STAGE -----//
 //========================
 
 // Slime "instance" (struct)
-Slime player;
+struct Slime player;
 
 // Enemies "instances" (struct)
-Enemy knight;
+struct Enemy knight;
 
 
 void main(){
+    // Inicializar utils
+    vbl_count = 0;
+
+    // Inicializar Animaciones
+    state = FALSE;
+    input = 0;
+    slime_dir = 0;
+    isMoving = FALSE;
+    pixels_moved = 0;
+    frames_anim = 0;
 
     // Inicializar parametros del background
     bkg_x = 0;
@@ -124,7 +135,7 @@ void main(){
     // Set background tiles
     //==========================
     set_bkg_data(0, 4, test_bkg);
-    set_bkg_tiles(0, 0, 30, 30, testBkg);
+    set_bkg_tiles(0, 0, 30, 30, testMap);
 
     //==========================
     // Set Slime Sprites
@@ -165,32 +176,8 @@ void main(){
     SHOW_BKG;
     DISPLAY_ON;
 
-
-    // Loop de juego
-    while(1){
-
-        if(!vbl_count)
-            wait_vbl_done();
-        vbl_count = 0;
-
-        
-        // Solo se puede recibir input cuando slime está quieto
-        if(!isMoving)
-            input = joypad();
-        
-        Slime_map_move();
-        
-        // Animaciones del Knight
-        Knight_animMap_handler();
-
-        // Animaciones del Slime
-        Slime_animMap_handler();
-
-
-        // Para frames de animacion
-        frames_anim++;
-
-    }
+    SWITCH_ROM_MBC1(1);
+    Gameloop();
 }
 
 void Check_scroll_bkg(){
@@ -252,8 +239,7 @@ void Slime_map_move(){
     // Si se está moviendo, terminar de mover 8 pixeles con la ultima direccion obtenida
     if(isMoving){
         
-        if(knight.isMoving)
-            Knight_map_move();
+        Knight_map_move();
         
         if(slime_dir & J_RIGHT){
             if(!scroll){
@@ -318,40 +304,40 @@ void Slime_map_move(){
 
 void Slime_map_collision(){
     if(slime_dir == 0x04U){   // UP
-        if(testBkg[player.x + 30 * (player.y - 1)] != 0x03){
+        if(testMap[player.x + 30 * (player.y - 1)] != 0x03){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y -= 2;
-            //bkg_y -= 8;     // FIX THIS
+            //bkg_y -= 8;     // FIXED
             return;
         }
     }
     else if(slime_dir == 0x08U){  // DOWN
-        if(testBkg[player.x + 30 * (player.y + 2)] != 0x03){
+        if(testMap[player.x + 30 * (player.y + 2)] != 0x03){
             isMoving = TRUE;
             Check_scroll_bkg();
             player.y += 2;
-            //bkg_y += 8;     // FIX THIS
+            //bkg_y += 8;     // FIXED
             return;
         }
     }
     else if(slime_dir == 0x01U){  // RIGHT
-        if(testBkg[player.x + 2 + 30 * player.y] != 0x03){
+        if(testMap[player.x + 2 + 30 * player.y] != 0x03){
             isMoving = TRUE;
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x += 2;
-            //bkg_x += 8;     // FIX THIS
+            //bkg_x += 8;     // FIXED
             return;
         }
     }
     else if(slime_dir == 0x02U){  // LEFT
-        if(testBkg[player.x - 1 + 30 * player.y] != 0x03){
+        if(testMap[player.x - 1 + 30 * player.y] != 0x03){
             isMoving = TRUE;
             // Si está a la mitad de la pantalla, se mueve el mapa no el slime
             Check_scroll_bkg();
             player.x -= 2;
-            //bkg_x -= 8;     // FIX THIS
+            //bkg_x -= 8;     // FIXED
             return;
         }
     }
@@ -416,7 +402,7 @@ void Slime_animMap_handler(){
 
 void Check_2x1_collisions(){
     if(rand_ == 0){ // UP
-        if(testBkg[knight.x + 30 * (knight.y - 1)] != 0x03){  // BIEN
+        if(testMap[knight.x + 30 * (knight.y - 1)] != 0x03){  // BIEN
             knight.isMoving = TRUE;
             knight.y -= 2;
         }
@@ -424,7 +410,7 @@ void Check_2x1_collisions(){
             knight.isMoving = FALSE;
     }
     else if(rand_ == 1){ // DOWN
-        if(testBkg[knight.x + 30 * (knight.y + 2)] != 0x03){  // BIEN
+        if(testMap[knight.x + 30 * (knight.y + 2)] != 0x03){  // BIEN
             knight.isMoving = TRUE;
             knight.y += 2;
         }
@@ -432,7 +418,7 @@ void Check_2x1_collisions(){
             knight.isMoving = FALSE;
     }
     else if(rand_ == 2){ // RIGHT
-        if(testBkg[knight.x + 2 + 30 * knight.y] != 0x03){
+        if(testMap[knight.x + 2 + 30 * knight.y] != 0x03){
             knight.isMoving = TRUE;
             knight.x += 2;
         }
@@ -440,7 +426,7 @@ void Check_2x1_collisions(){
             knight.isMoving = FALSE;
     }
     else if(rand_ == 3){ // LEFT
-        if(testBkg[knight.x - 1 + 30 * knight.y] != 0x03){
+        if(testMap[knight.x - 1 + 30 * knight.y] != 0x03){
             knight.isMoving = TRUE;
             knight.x -= 2;
         }
@@ -450,56 +436,119 @@ void Check_2x1_collisions(){
     //knight.isMoving = FALSE;
 }
 
+// BUGS AL HACER SCROLLS     TO DO
+
 void Knight_map_move(){
-    // Mover arriba
-    if(rand_ == 0){
-        if(scroll){
-            if(slime_dir == J_UP){}   // No se queda en su lugar
-            else if(slime_dir == J_DOWN){
-                scroll_sprite(4, 0, 1);
-                scroll_sprite(5, 0, 1);
-            }
-            else if(slime_dir == J_RIGHT){
-                scroll_sprite(4, 1, 1);
-                scroll_sprite(5, 1, 1);
-            }
-            else{  // LEFT
-            scroll_sprite(4, -1, 1);
-            scroll_sprite(5, -1, 1);
-            }
-        }
-        else{
-            scroll_sprite(4, 0, -1);
-            scroll_sprite(5, 0, -1);
-        }
-    }
-    // Mover abajo
-    else if(rand_ == 1){
-        if(slime_dir == J_UP){}   // No se queda en su lugar
-        else if(slime_dir == J_DOWN){
+    // Si el enemigo no se mueve, pero hay scroll, debe ir en direccion contraria
+    if(!knight.isMoving && scroll){
+        if(slime_dir == J_UP){
             scroll_sprite(4, 0, 1);
             scroll_sprite(5, 0, 1);
         }
+        else if(slime_dir == J_DOWN){
+            scroll_sprite(4, 0, -1);
+            scroll_sprite(5, 0, -1);
+        }
         else if(slime_dir == J_RIGHT){
-            scroll_sprite(4, 1, 1);
-            scroll_sprite(5, 1, 1);
+            scroll_sprite(4, -1, 0);
+            scroll_sprite(5, -1, 0);
         }
-        else{  // LEFT
-        scroll_sprite(4, -1, 1);
-        scroll_sprite(5, -1, 1);
+        else if(slime_dir == J_LEFT){
+            scroll_sprite(4, 1, 0);
+            scroll_sprite(5, 1, 0);
         }
-        scroll_sprite(4, 0, 1);
-        scroll_sprite(5, 0, 1);
     }
-    // Mover Derecha
-    else if(rand_ == 2){
-        scroll_sprite(4, 1, 0);
-        scroll_sprite(5, 1, 0);
+    // Si hay movimiento, debe corresponder con la dirección de scroll si es que hay scroll
+    else if(knight.isMoving){
+        // Mover arriba
+        if(rand_ == 0){
+            if(scroll){
+                if(slime_dir == J_DOWN){
+                    scroll_sprite(4, 0, 2);
+                    scroll_sprite(5, 0, 2);
+                }
+                else if(slime_dir == J_RIGHT){
+                    scroll_sprite(4, 1, -1);
+                    scroll_sprite(5, 1, -1);
+                }
+                else if (slime_dir == J_LEFT){
+                scroll_sprite(4, -1, -1);
+                scroll_sprite(5, -1, -1);
+                }
+            }
+            else{
+                // Se mueve normal hacia arriba (sin scroll)
+                scroll_sprite(4, 0, -1);
+                scroll_sprite(5, 0, -1);
+            }
+        }
+        // Mover abajo
+        else if(rand_ == 1){
+            if(scroll){
+                if(slime_dir == J_UP){
+                    scroll_sprite(4, 0, -2);
+                    scroll_sprite(5, 0, -2);
+                }   // No se queda en su lugar
+                else if(slime_dir == J_RIGHT){
+                    scroll_sprite(4, 1, 1);
+                    scroll_sprite(5, 1, 1);
+                }
+                else if(slime_dir == J_LEFT){  // LEFT
+                scroll_sprite(4, -1, 1);
+                scroll_sprite(5, -1, 1);
+                }
+            }
+            else{
+                scroll_sprite(4, 0, 1);
+                scroll_sprite(5, 0, 1);
+            }
+        }
+        // Mover Derecha
+        else if(rand_ == 2){
+            if(scroll){
+                if(slime_dir == J_UP){
+                    scroll_sprite(4, 1, 1);
+                    scroll_sprite(5, 1, 1);
+                    
+                }
+                else if(slime_dir == J_DOWN){
+                    scroll_sprite(4, 1, -1);
+                    scroll_sprite(5, 1, -1);
+                }
+                else if(slime_dir == J_LEFT){  // LEFT
+                scroll_sprite(4, -2, 0);
+                scroll_sprite(5, -2, 0);
+                }
+            }
+            else{
+                scroll_sprite(4, 1, 0);
+                scroll_sprite(5, 1, 0);
+            }
+
+        }
+        else{ // Izquierda
+        if(scroll){
+                if(slime_dir == J_UP){
+                    scroll_sprite(4, -1, 1);
+                    scroll_sprite(5, -1, 1);
+                    
+                }
+                else if(slime_dir == J_DOWN){
+                    scroll_sprite(4, -1, -1);
+                    scroll_sprite(5, -1, -1);
+                }
+                else if(slime_dir == J_LEFT){  // LEFT
+                    scroll_sprite(4, 2, 0);
+                    scroll_sprite(5, 2, 0);
+                }
+            }
+            else{
+                scroll_sprite(4, -1, 0);
+                scroll_sprite(5, -1, 0);
+            }
+        }
     }
-    else{
-        scroll_sprite(4, -1, 0);
-        scroll_sprite(5, -1, 0);
-    }
+    
 }
 
 void Knight_anim_idle(){
@@ -541,9 +590,9 @@ void Knight_anim_moving(){
 }
 
 void Knight_animMap_handler(){
-    if(isMoving && knight.isMoving)
-        Knight_anim_moving();
-    else
+    //if(isMoving && knight.isMoving)
+        //Knight_anim_moving();
+    //else
         Knight_anim_idle();
 }
 
