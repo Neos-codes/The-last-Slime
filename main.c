@@ -440,7 +440,8 @@ void Check_2x1_collisions(){
 
 void Knight_map_move(){
     // Si el enemigo no se mueve, pero hay scroll, debe ir en direccion contraria
-    if(!knight.isMoving && scroll){
+    
+    if(!knight.isMoving && scroll){    // Esta parte no tiene bugs
         if(slime_dir == J_UP){
             scroll_sprite(4, 0, 1);
             scroll_sprite(5, 0, 1);
@@ -459,21 +460,21 @@ void Knight_map_move(){
         }
     }
     // Si hay movimiento, debe corresponder con la dirección de scroll si es que hay scroll
-    else if(knight.isMoving){
+    else if(knight.isMoving){    // Esta parte si tiene BUGS
         // Mover arriba
         if(rand_ == 0){
             if(scroll){
                 if(slime_dir == J_DOWN){
-                    scroll_sprite(4, 0, 2);
-                    scroll_sprite(5, 0, 2);
+                    scroll_sprite(4, 0, -2);
+                    scroll_sprite(5, 0, -2);
                 }
                 else if(slime_dir == J_RIGHT){
-                    scroll_sprite(4, 1, -1);
-                    scroll_sprite(5, 1, -1);
+                    scroll_sprite(4, -1, -1);
+                    scroll_sprite(5, -1, -1);
                 }
                 else if (slime_dir == J_LEFT){
-                scroll_sprite(4, -1, -1);
-                scroll_sprite(5, -1, -1);
+                scroll_sprite(4, 1, -1);
+                scroll_sprite(5, 1, -1);
                 }
             }
             else{
@@ -486,16 +487,16 @@ void Knight_map_move(){
         else if(rand_ == 1){
             if(scroll){
                 if(slime_dir == J_UP){
-                    scroll_sprite(4, 0, -2);
-                    scroll_sprite(5, 0, -2);
+                    scroll_sprite(4, 0, 2);
+                    scroll_sprite(5, 0, 2);
                 }   // No se queda en su lugar
                 else if(slime_dir == J_RIGHT){
-                    scroll_sprite(4, 1, 1);
-                    scroll_sprite(5, 1, 1);
+                    scroll_sprite(4, -1, 1);
+                    scroll_sprite(5, -1, 1);
                 }
                 else if(slime_dir == J_LEFT){  // LEFT
-                scroll_sprite(4, -1, 1);
-                scroll_sprite(5, -1, 1);
+                scroll_sprite(4, 1, 1);
+                scroll_sprite(5, 1, 1);
                 }
             }
             else{
@@ -516,8 +517,8 @@ void Knight_map_move(){
                     scroll_sprite(5, 1, -1);
                 }
                 else if(slime_dir == J_LEFT){  // LEFT
-                scroll_sprite(4, -2, 0);
-                scroll_sprite(5, -2, 0);
+                scroll_sprite(4, 2, 0);
+                scroll_sprite(5, 2, 0);
                 }
             }
             else{
@@ -537,9 +538,9 @@ void Knight_map_move(){
                     scroll_sprite(4, -1, -1);
                     scroll_sprite(5, -1, -1);
                 }
-                else if(slime_dir == J_LEFT){  // LEFT
-                    scroll_sprite(4, 2, 0);
-                    scroll_sprite(5, 2, 0);
+                else if(slime_dir == J_RIGHT){  // LEFT
+                    scroll_sprite(4, -2, 0);
+                    scroll_sprite(5, -2, 0);
                 }
             }
             else{
@@ -590,9 +591,9 @@ void Knight_anim_moving(){
 }
 
 void Knight_animMap_handler(){
-    //if(isMoving && knight.isMoving)
-        //Knight_anim_moving();
-    //else
+    if(isMoving && knight.isMoving)
+        Knight_anim_moving();
+    else
         Knight_anim_idle();
 }
 
