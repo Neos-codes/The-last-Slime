@@ -8,8 +8,9 @@
 // Background tiles
 #include "Background_Tiles/test_bkg.c"
 // Backgrounds
-#include "Backgrounds/testBkg.c"
+//#include "Backgrounds/testBkg.c"
 
+extern unsigned char testBkg [];
 //========================
 // ----- Structs ----- //
 //========================
@@ -452,11 +453,41 @@ void Check_2x1_collisions(){
 void Knight_map_move(){
     // Mover arriba
     if(rand_ == 0){
-        scroll_sprite(4, 0, -1);
-        scroll_sprite(5, 0, -1);
+        if(scroll){
+            if(slime_dir == J_UP){}   // No se queda en su lugar
+            else if(slime_dir == J_DOWN){
+                scroll_sprite(4, 0, 1);
+                scroll_sprite(5, 0, 1);
+            }
+            else if(slime_dir == J_RIGHT){
+                scroll_sprite(4, 1, 1);
+                scroll_sprite(5, 1, 1);
+            }
+            else{  // LEFT
+            scroll_sprite(4, -1, 1);
+            scroll_sprite(5, -1, 1);
+            }
+        }
+        else{
+            scroll_sprite(4, 0, -1);
+            scroll_sprite(5, 0, -1);
+        }
     }
     // Mover abajo
     else if(rand_ == 1){
+        if(slime_dir == J_UP){}   // No se queda en su lugar
+        else if(slime_dir == J_DOWN){
+            scroll_sprite(4, 0, 1);
+            scroll_sprite(5, 0, 1);
+        }
+        else if(slime_dir == J_RIGHT){
+            scroll_sprite(4, 1, 1);
+            scroll_sprite(5, 1, 1);
+        }
+        else{  // LEFT
+        scroll_sprite(4, -1, 1);
+        scroll_sprite(5, -1, 1);
+        }
         scroll_sprite(4, 0, 1);
         scroll_sprite(5, 0, 1);
     }
