@@ -15,7 +15,7 @@ extern void Slime_animMap_handler();
 // ------ Mechanics
 // Knight
 extern void Check_2x1_collisions();
-extern void Enemy_2x1_map_move(struct Enemy *enemy);
+extern void Enemy_2x1_map_move();
 // ------ Animations
 // Knight
 extern void Knight_anim_idle();
