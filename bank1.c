@@ -43,6 +43,8 @@ extern UINT8 frames_anim;       // Frames de animaciones (ejemplo, 30 frames = 1
 extern UINT16 bkg_x, bkg_y;
 extern UINT8 scroll;
 // Utils
+//----- Iterations
+extern UINT8 i;
 //----- Random
 extern UINT8 rand_;
 extern UINT16 seed;
@@ -56,12 +58,13 @@ extern UINT8 vbl_count;
 extern struct Slime player;
 
 // Enemies "instances" (struct)
-extern struct Enemy knight;
+//extern struct Enemy knight;
 
-extern struct Enemy enemies_array[10];
+extern struct Enemy enemies_array[5];
+extern UINT8 nEnemies;
 
 
-void Gameloop(){
+void Gameloop() {
 
   //set_bkg_tiles(0, 0, 30, 30, testBkg);
 
