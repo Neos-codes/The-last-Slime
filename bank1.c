@@ -1,5 +1,5 @@
 #include <gb/gb.h>
-#include "testMap.c"
+#include "Backgrounds/testMap.c"
 
 extern void Scroll_bkg();
 
@@ -18,9 +18,9 @@ extern void Check_2x1_collisions();
 extern void Enemy_2x1_map_move();
 // ------ Animations
 // Knight
-extern void Knight_anim_idle();
-extern void Knight_anim_moving();
-extern void Knight_animMap_handler();
+extern void Enemy_anim_idle();
+extern void Enemy_anim_moving();
+extern void Enemy_animMap_handler();
 // Utils
 // ----- RANDOM NUMBERS
 extern void Set_seed_rand();
@@ -58,6 +58,8 @@ extern struct Slime player;
 // Enemies "instances" (struct)
 extern struct Enemy knight;
 
+extern struct Enemy enemies_array[10];
+
 
 void Gameloop(){
 
@@ -78,7 +80,7 @@ void Gameloop(){
         Slime_map_move();
         
         // Animaciones del Knight
-        Knight_animMap_handler();
+        Enemy_animMap_handler();
 
         // Animaciones del Slime
         Slime_animMap_handler();

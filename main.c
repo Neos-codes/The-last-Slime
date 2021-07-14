@@ -1,6 +1,6 @@
 // Utils
 #include <gb/gb.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <rand.h>
 // Sprites
 #include "Sprites/slime.c"
@@ -54,9 +54,9 @@ void Check_2x1_collisions();
 void Enemy_2x1_map_move();
 // ------ Animations
 // Knight
-void Knight_anim_idle();
-void Knight_anim_moving();
-void Knight_animMap_handler();
+void Enemy_anim_idle();
+void Enemy_anim_moving();
+void Enemy_animMap_handler();
 // Utils
 // ----- RANDOM NUMBERS
 void Set_seed_rand();
@@ -96,6 +96,8 @@ struct Enemy knight;
 
 // Auxiliar enemy
 struct Enemy *auxEnemy;
+
+struct Enemy enemies_array[10];
 
 
 void main(){
@@ -296,7 +298,7 @@ void Slime_map_move(){
             slime_dir = 0;
             pixels_moved = 0;
             isMoving = FALSE;
-            knight.isMoving = FALSE;
+            //knight.isMoving = FALSE;
             // ----- Coordinacion de animacion
             // Reinicia los contadores para pasar a animar el idle del Slime y los npc's
             frames_anim = 0;
@@ -423,7 +425,7 @@ void Check_2x1_collisions(){
             auxEnemy -> y += 2;
         }
         else
-            knight.isMoving = FALSE;
+            auxEnemy -> isMoving = FALSE;
     }
     else if(rand_ == 2){ // RIGHT
         if(testMap[auxEnemy -> x + 2 + 30 * auxEnemy -> y] != 0x03){
@@ -558,49 +560,49 @@ void Enemy_2x1_map_move(){
     
 }
 
-void Knight_anim_idle(){
+void Enemy_anim_idle(){
     if(frames_anim == 30){
         if(state){
-            set_sprite_tile(4, 11);
-            set_sprite_tile(5, 10);
+            set_sprite_tile(auxEnemy -> sprite, 11);
+            set_sprite_tile(auxEnemy -> sprite + 1, 10);
         }
         else{
-            set_sprite_tile(4, 9);
-            set_sprite_tile(5, 10);
+            set_sprite_tile(auxEnemy -> sprite, 9);
+            set_sprite_tile(auxEnemy -> sprite + 1, 10);
         }
     }
 }
 
-void Knight_anim_moving(){
+void Enemy_anim_moving(){
     if(frames_anim == 3){
         if(rand_ == 2 || rand_ == 3){
             if(state){
-                scroll_sprite(4, 0, -1);
-                scroll_sprite(5, 0, -1);
+                scroll_sprite(auxEnemy -> sprite, 0, -1);
+                scroll_sprite(auxEnemy -> sprite + 1, 0, -1);
             }
             else{
-                scroll_sprite(5, 0, 1);
-                scroll_sprite(4, 0, 1);
+                scroll_sprite(auxEnemy -> sprite, 0, 1);
+                scroll_sprite(auxEnemy -> sprite + 1, 0, 1);
             }
         }
         else{
             if(state){
-                scroll_sprite(4, -1, 0);
-                scroll_sprite(5, -1, 0);
+                scroll_sprite(auxEnemy -> sprite, -1, 0);
+                scroll_sprite(auxEnemy -> sprite + 1, -1, 0);
             }
             else{
-                scroll_sprite(5, 1, 0);
-                scroll_sprite(4, 1, 0);
+                scroll_sprite(auxEnemy -> sprite, 1, 0);
+                scroll_sprite(auxEnemy -> sprite + 1, 1, 0);
             }
         }
     }
 }
 
-void Knight_animMap_handler(){
+void Enemy_animMap_handler(){
     if(isMoving && knight.isMoving)
-        Knight_anim_moving();
+        Enemy_anim_moving();
     else
-        Knight_anim_idle();
+        Enemy_anim_idle();
 }
 
 void vbl_update(){
