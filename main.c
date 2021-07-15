@@ -29,6 +29,7 @@ struct Enemy{
     UINT16 x, y;           // Enemy position (x, y)
     UINT8 isMoving;       // True when there is no obstacle in his direction
     UINT8 sprite;         // Primer sprite del enemigo
+    UINT8 dir;
 };
 
 
@@ -132,21 +133,11 @@ void main(){
     enemies_array[0].isMoving = FALSE;
     enemies_array[0].type = '2';
     // Test Skeleton
-    enemies_array[1].x = 9;
-    enemies_array[1].y = 1;
-    enemies_array[1].sprite = 7;
+    enemies_array[1].x = 3;
+    enemies_array[1].y = 7;
+    enemies_array[1].sprite = 6;
     enemies_array[1].isMoving = FALSE;
     enemies_array[1].type = '4';
-    
-    /*
-    knight.x = 5;
-    knight.y = 5;
-    knight.sprite = 4;
-    //knight.sprites[1] = 5;
-    knight.isMoving = FALSE;
-    */
-    // Enemigo auxiliar
-    //auxEnemy = &knight;
 
 
     // Inicializar parametros de animaciones
@@ -441,6 +432,8 @@ void Slime_animMap_handler(){
     else
         Slime_anim_idle();
 }
+
+// BUG AQUI? SKELETON SE MUEVE SOLO CUANDO KNIGHT NO SE MUEVE
 
 void Check_2x1_collisions(){
     if(rand_ == 0){ // UP
