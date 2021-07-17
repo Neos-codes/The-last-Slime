@@ -44,9 +44,9 @@ extern UINT16 bkg_x, bkg_y;
 extern UINT8 scroll;
 // Utils
 //----- Iterations
-extern UINT8 i;
+extern UINT8 i, j;
 //----- Random
-extern UINT8 rand_;
+//extern UINT8 rand_;
 extern UINT16 seed;
 //----- VBlanks
 extern UINT8 vbl_count;
