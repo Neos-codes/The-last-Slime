@@ -26,7 +26,7 @@ struct Slime{
 struct Enemy{
     unsigned char type;   // Type of enemy: Rookie, Monster, etc
     UINT8 stamina;        // Enemy stamina before get tired
-    UINT16 x, y;           // Enemy position (x, y)+
+    UINT16 x, y;          // Enemy position (x, y)
     UINT8 isMoving;       // True when there is no obstacle in his direction
     UINT8 sprite;         // Primer sprite del enemigo
     UINT8 dir;
@@ -65,6 +65,10 @@ void Set_seed_rand();
 void Input();
 // ----- VBlanks
 void vbl_update();
+
+// External functions
+extern void Enemy_Choose_dir();
+extern void Enemy_Closest_dir();
 
 //================================
 // ----- Global Variables ----- //
@@ -131,13 +135,13 @@ void main(){
     enemies_array[0].y = 5;
     enemies_array[0].sprite = 4;
     enemies_array[0].isMoving = FALSE;
-    enemies_array[0].type = '2';
+    enemies_array[0].type = 'r';
     // Test Skeleton
     enemies_array[1].x = 3;
     enemies_array[1].y = 7;
     enemies_array[1].sprite = 6;
     enemies_array[1].isMoving = FALSE;
-    enemies_array[1].type = '4';
+    enemies_array[1].type = 's';
 
 
     // Inicializar parametros de animaciones
@@ -184,9 +188,9 @@ void main(){
     set_sprite_tile(7, 13);
     set_sprite_tile(8, 14);
     set_sprite_tile(9, 15);
-    move_sprite(6, 8 + 8 * enemies_array[1].x, 16 + 8 * enemies_array[1].y);
+    move_sprite(6, 8 + 8 * enemies_array[1].x, 16 + 8 * enemies_array[1].y + 1);   // .y + 1 por animacion idle
     move_sprite(7, 8 + 8 * enemies_array[1].x, 16 + 8 * (enemies_array[1].y + 1));
-    move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y);
+    move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y + 1);  // .y + 1 por anim idle
     move_sprite(9, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * (enemies_array[1].y + 1));
 
     //====== Flag sprite
@@ -268,7 +272,7 @@ void Slime_map_move(){
                     Check_2x1_collisions();
                 }
                 frames_anim = 0;
-                state = FALSE;
+                //state = FALSE;
             }
             // ------ TESTING
             //if(isMoving)
@@ -333,7 +337,7 @@ void Slime_map_move(){
             // ----- Coordinacion de animacion
             // Reinicia los contadores para pasar a animar el idle del Slime y los npc's
             frames_anim = 0;
-            state = FALSE;
+            //state = FALSE;
             // ----------------------------
             // scroll bkg flag vuelve a ser falso
             scroll = FALSE;
@@ -418,16 +422,10 @@ void Slime_anim_moving(){
     if(frames_anim == 3){
         if(state){
             set_sprite_tile(0, 8);
-            set_sprite_tile(1, 5);
-            set_sprite_tile(2, 6);
-            set_sprite_tile(3, 7);
             state = FALSE;
         }
         else{
             set_sprite_tile(0, 4);
-            set_sprite_tile(1, 5);
-            set_sprite_tile(2, 6);
-            set_sprite_tile(3, 7);
             state = TRUE;
         }
         frames_anim = 0;
@@ -480,7 +478,7 @@ void Check_2x1_collisions(){
 void Enemy_2x1_map_move(){
     UINT8 nSprites = 2;
     // Si el enemigo no se mueve, pero hay scroll, debe ir en direccion contraria
-    if(auxEnemy -> type != '2') nSprites = 4;
+    if(auxEnemy -> type == 's') nSprites = 4;
 
     
     if(!auxEnemy -> isMoving && scroll){    // Esta parte no tiene bugs
@@ -599,13 +597,23 @@ void Enemy_2x1_map_move(){
 
 void Enemy_anim_idle(){
     if(frames_anim == 30){
+        UINT8 spr = auxEnemy -> sprite;
+        UINT8 type = auxEnemy -> type;
         if(state){
-            set_sprite_tile(auxEnemy -> sprite, 11);       // This is bugged, all idle anim
-            //set_sprite_tile(auxEnemy -> sprite + 1, 10);
+            if(type == 'r')
+                set_sprite_tile(spr, 11);
+            else if (type == 's') {
+                scroll_sprite(spr, 0, 1);
+                scroll_sprite(spr + 2, 0, 1);
+            }
         }
         else{
-            set_sprite_tile(auxEnemy -> sprite, 9);
-            //set_sprite_tile(auxEnemy -> sprite + 1, 10);
+            if(type == 'r')
+                set_sprite_tile(spr, 9);
+            else if(type == 's'){
+                scroll_sprite(spr, 0, -1);
+                scroll_sprite(spr + 2, 0, -1);   
+            }
         }
     }
 }
@@ -613,7 +621,7 @@ void Enemy_anim_idle(){
 void Enemy_anim_moving(){
     // Cantidad de sprites del enemigo
     UINT8 nSprites = 2;
-    if(auxEnemy -> type != '2')
+    if(auxEnemy -> type == 's')
         nSprites = 4;
     
     if(frames_anim == 3){

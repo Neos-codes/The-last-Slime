@@ -64,6 +64,21 @@ extern struct Enemy enemies_array[5];
 extern UINT8 nEnemies;
 
 
+//=====================================
+//---------Internal Functions----------
+//=====================================
+
+// ----- Definiciones de funciones
+
+// Donde funciona el juego en los mapas
+void Gameloop();
+// Escoge una dirección estandar para los enemigos
+void Enemy_Choose_dir();
+// A menos de un radio "r" de distancia, persigue al jugador
+void Enemy_Closest_dir();
+
+
+// ------ Implementacion de funciones
 void Gameloop() {
 
   //set_bkg_tiles(0, 0, 30, 30, testBkg);
@@ -93,4 +108,12 @@ void Gameloop() {
         frames_anim++;
 
     }
+}
+
+void Enemy_Choose_dir(){
+
+}
+
+void Enemy_Closest_dir(){
+
 }
