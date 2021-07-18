@@ -1,4 +1,6 @@
 #include <gb/gb.h>
+#include <rand.h>
+#include "libs/chars.h"
 #include "Backgrounds/testMap.c"
 
 extern void Scroll_bkg();
@@ -59,6 +61,7 @@ extern struct Slime player;
 
 // Enemies "instances" (struct)
 //extern struct Enemy knight;
+extern struct Enemy *auxEnemy;
 
 extern struct Enemy enemies_array[5];
 extern UINT8 nEnemies;
@@ -111,9 +114,66 @@ void Gameloop() {
 }
 
 void Enemy_Choose_dir(){
-
+    // Si aun le quedan pasos por dar en su direccion actual
+    if(auxEnemy -> steps != 10){
+        UINT8 k;
+        // Revisar si aun se puede mover en esa direccion
+        for(k = 0; k < 4; k++){
+            Check_2x1_collisions();
+            // Si no se puede mover, cambiar direccion
+            if(!auxEnemy -> isMoving){
+                auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+                auxEnemy -> steps = 0;
+            }
+            // Si se puede seguir en su direccion actual, aumentar 1 paso
+            else{
+                auxEnemy -> steps++;
+                return;
+            }
+        }
+    }
+    // Si ya no le quedan pasos, cambiar direccion
+    else{
+        UINT8 k;
+        for(k = 0; k < 4; k++){
+            auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+            Check_2x1_collisions();
+            if(auxEnemy -> isMoving){
+                auxEnemy -> steps = 0;
+                break;
+            }
+        }
+    }
 }
 
 void Enemy_Closest_dir(){
+    UINT8 rand_ = rand() % 2;
 
+    while(1){
+        if(rand_){
+            if(auxEnemy -> x > player.x){
+                // Hacia la izquierda
+                auxEnemy -> dir = 3;
+                break;
+            }
+            else if(auxEnemy -> x < player.x){
+                // Hacia la derecha
+                auxEnemy -> dir = 2;
+                break;
+            }
+        }
+        else{
+            if(auxEnemy -> y > player.y){
+                // Hacia abajo
+                auxEnemy -> dir = 1;
+                break;
+            }
+            else if(auxEnemy -> y < player.y){
+                // Hacia arriba
+                auxEnemy -> dir = 0;
+                break;
+            }
+        }
+        rand_ = !rand_;
+    }
 }

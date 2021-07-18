@@ -1,5 +1,6 @@
 // Utils
 #include <gb/gb.h>
+#include "libs/chars.h"
 //#include <stdio.h>
 #include <rand.h>
 // Sprites
@@ -9,29 +10,6 @@
 #include "Background_Tiles/test_bkg.c"
 // Backgrounds
 //#include "Backgrounds/testMap.c"
-
-extern unsigned char testMap [];
-extern void Gameloop();
-//========================
-// ----- Structs ----- //
-//========================
-
-// Slime struct
-struct Slime{
-    UINT8 hp;     // Hp of Slime
-    UINT16 x, y;   // Slime position (x, y)
-};
-
-// Enemy Struct
-struct Enemy{
-    unsigned char type;   // Type of enemy: Rookie, Monster, etc
-    UINT8 stamina;        // Enemy stamina before get tired
-    UINT16 x, y;          // Enemy position (x, y)
-    UINT8 isMoving;       // True when there is no obstacle in his direction
-    UINT8 sprite;         // Primer sprite del enemigo
-    UINT8 dir;
-};
-
 
 //============================
 // ----- Functions ----- //
@@ -67,6 +45,8 @@ void Input();
 void vbl_update();
 
 // External functions
+extern unsigned char testMap [];
+extern void Gameloop();
 extern void Enemy_Choose_dir();
 extern void Enemy_Closest_dir();
 
@@ -87,7 +67,6 @@ UINT8 scroll;
 // Iteration
 UINT8 i, j, k;
 //----- Random
-//UINT8 rand_;
 UINT16 seed;
 //----- VBlanks
 UINT8 vbl_count;
@@ -136,12 +115,16 @@ void main(){
     enemies_array[0].sprite = 4;
     enemies_array[0].isMoving = FALSE;
     enemies_array[0].type = 'r';
+    enemies_array[0].steps = 0;
+    enemies_array[0].dir = 0;
     // Test Skeleton
     enemies_array[1].x = 3;
     enemies_array[1].y = 7;
     enemies_array[1].sprite = 6;
     enemies_array[1].isMoving = FALSE;
     enemies_array[1].type = 's';
+    enemies_array[1].steps = 0;
+    enemies_array[0].dir = 1;
 
 
     // Inicializar parametros de animaciones
@@ -151,7 +134,6 @@ void main(){
     pixels_moved = 0;
     isMoving = FALSE;
     // Inicializar parametros de RANDOM
-    //rand_ = 0;
     seed = 0;
 
     //==========================
@@ -262,17 +244,12 @@ void Slime_map_move(){
             
             // Reiniciar los contadores para animar los pasos del slime y los npc's   
             if(isMoving){
-                // Generar una direccion random para los enemigos
-                //rand_ = ((UINT8)rand()) % (UINT8)4;
-                //printf("rand = %u", rand_);
                 for(i = 0; i < nEnemies; i++){
                     auxEnemy = &enemies_array[i];
-                    //auxEnemy -> dir = ((UINT8)rand()) % (UINT8)4;
-                    auxEnemy -> dir = 3;
-                    Check_2x1_collisions();
+                    //Check_2x1_collisions();
+                    Enemy_Choose_dir();
                 }
                 frames_anim = 0;
-                //state = FALSE;
             }
             // ------ TESTING
             //if(isMoving)
@@ -448,7 +425,7 @@ void Check_2x1_collisions(){
         else
             auxEnemy -> isMoving = FALSE;
     }
-    else if(auxEnemy -> dir == 1){ // DOWN
+    else if(auxEnemy -> dir == 2){ // DOWN
         if(testMap[auxEnemy -> x + 30 * (auxEnemy -> y + 2)] != 0x03){  // BIEN
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> y += 2;
@@ -456,7 +433,7 @@ void Check_2x1_collisions(){
         else
             auxEnemy -> isMoving = FALSE;
     }
-    else if(auxEnemy -> dir == 2){ // RIGHT
+    else if(auxEnemy -> dir == 1){ // RIGHT
         if(testMap[auxEnemy -> x + 2 + 30 * auxEnemy -> y] != 0x03){
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> x += 2;
@@ -527,7 +504,7 @@ void Enemy_2x1_map_move(){
                 }
             }
             // Mover abajo
-            else if(auxEnemy -> dir == 1){
+            else if(auxEnemy -> dir == 2){
                 if(scroll){
                     if(slime_dir == J_UP){
                         scroll_sprite(auxEnemy -> sprite + j, 0, 2);
@@ -548,7 +525,7 @@ void Enemy_2x1_map_move(){
                 }
             }
             // Mover Derecha
-            else if(auxEnemy -> dir == 2){
+            else if(auxEnemy -> dir == 1){
                 if(scroll){
                     if(slime_dir == J_UP){
                         scroll_sprite(auxEnemy -> sprite + j, 1, 1);
@@ -626,7 +603,7 @@ void Enemy_anim_moving(){
     
     if(frames_anim == 3){
         for(j = 0; j < nSprites; j++){   
-            if(auxEnemy -> dir == 2 || auxEnemy -> dir == 3){
+            if(auxEnemy -> dir == 1 || auxEnemy -> dir == 3){
                 if(state){
                     scroll_sprite(auxEnemy -> sprite + j, 0, -1);
                     //scroll_sprite(auxEnemy -> sprite + 1, 0, -1);
