@@ -77,8 +77,10 @@ extern UINT8 nEnemies;
 void Gameloop();
 // Escoge una dirección estandar para los enemigos
 void Enemy_Choose_dir();
-// A menos de un radio "r" de distancia, persigue al jugador
+// A menos de un radio "r^2" de distancia, persigue al jugador
 void Enemy_Closest_dir();
+// Obtener distancia del enemigo al Slime
+UINT8 GetSlimeDistance();
 
 
 // ------ Implementacion de funciones
@@ -115,15 +117,18 @@ void Gameloop() {
 
 void Enemy_Choose_dir(){
     // Si aun le quedan pasos por dar en su direccion actual
-    if(auxEnemy -> steps != 10){
+    UINT8 rand_ = rand() % 4;
+    if(auxEnemy -> steps != 3){
         UINT8 k;
         // Revisar si aun se puede mover en esa direccion
         for(k = 0; k < 4; k++){
             Check_2x1_collisions();
             // Si no se puede mover, cambiar direccion
             if(!auxEnemy -> isMoving){
-                auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+                //auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+                auxEnemy -> dir = rand_ % 4;
                 auxEnemy -> steps = 0;
+                rand_++;
             }
             // Si se puede seguir en su direccion actual, aumentar 1 paso
             else{
@@ -136,44 +141,53 @@ void Enemy_Choose_dir(){
     else{
         UINT8 k;
         for(k = 0; k < 4; k++){
-            auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+            //auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+            auxEnemy -> dir = rand_ % 4;
             Check_2x1_collisions();
             if(auxEnemy -> isMoving){
                 auxEnemy -> steps = 0;
                 break;
             }
+            rand_++;
         }
     }
 }
 
 void Enemy_Closest_dir(){
-    UINT8 rand_ = rand() % 2;
 
-    while(1){
-        if(rand_){
-            if(auxEnemy -> x > player.x){
-                // Hacia la izquierda
-                auxEnemy -> dir = 3;
-                break;
-            }
-            else if(auxEnemy -> x < player.x){
-                // Hacia la derecha
-                auxEnemy -> dir = 2;
-                break;
-            }
-        }
-        else{
-            if(auxEnemy -> y > player.y){
-                // Hacia abajo
-                auxEnemy -> dir = 1;
-                break;
-            }
-            else if(auxEnemy -> y < player.y){
-                // Hacia arriba
-                auxEnemy -> dir = 0;
-                break;
-            }
-        }
-        rand_ = !rand_;
+    // Si el enemigo está a la derecha del Slime
+    if(auxEnemy -> x > player.x){
+        auxEnemy -> dir = 3;
     }
+    // SI el enemigo está a la izquierda del slime
+    else if(player.x > auxEnemy -> x){
+        auxEnemy -> dir = 1;
+    }
+    // Si el enemigo está sobre el slime
+    else if(auxEnemy -> y > player.y){
+        auxEnemy -> dir = 2;
+    }
+    else if(player.y > auxEnemy -> y){
+        auxEnemy -> dir = 0;
+    }
+}
+
+UINT8 GetSlimeDistance(){
+    
+    UINT8 distance_ = 0;
+
+    // Obtener distancia en x
+    if(auxEnemy -> x > player.x)
+        distance_ += auxEnemy -> x - player.x;    
+    else
+        distance_ += player.x - auxEnemy -> x;
+    
+    // Obtener distancia en y
+    if(auxEnemy -> y > player.y)
+        distance_ += auxEnemy -> y - player.y;
+    else
+        distance_ += player.y - auxEnemy -> y;
+    
+    return distance_;
+
 }

@@ -49,6 +49,9 @@ extern unsigned char testMap [];
 extern void Gameloop();
 extern void Enemy_Choose_dir();
 extern void Enemy_Closest_dir();
+extern UINT8 GetSlimeDistance();
+
+UINT8 distance;
 
 //================================
 // ----- Global Variables ----- //
@@ -89,6 +92,7 @@ struct Enemy enemies_array[5];
 void main(){
     // Inicializar utils
     vbl_count = 0;
+    distance = 0;
 
     // Inicializar Animaciones
     state = FALSE;
@@ -112,11 +116,11 @@ void main(){
     // Test knight
     enemies_array[0].x = 5;
     enemies_array[0].y = 5;
+    //enemies_array[0].dir = rand() % 4;
     enemies_array[0].sprite = 4;
     enemies_array[0].isMoving = FALSE;
     enemies_array[0].type = 'r';
     enemies_array[0].steps = 0;
-    enemies_array[0].dir = 0;
     // Test Skeleton
     enemies_array[1].x = 3;
     enemies_array[1].y = 7;
@@ -124,7 +128,7 @@ void main(){
     enemies_array[1].isMoving = FALSE;
     enemies_array[1].type = 's';
     enemies_array[1].steps = 0;
-    enemies_array[0].dir = 1;
+    //enemies_array[0].dir = rand() % 4;
 
 
     // Inicializar parametros de animaciones
@@ -177,14 +181,14 @@ void main(){
 
     //====== Flag sprite
     // ---Flag Slime.isMoving
-    //set_sprite_tile(15, 4);
-    //move_sprite(15, 0x8, 0x10);
+    set_sprite_tile(15, 4);
+    move_sprite(15, 0, 0);
     // --- Flag Knight isMoving
     //set_sprite_tile(15, 9);
     //move_sprite(15, 0, 16);
     // --- Flag Skeleton isMoving
-    set_sprite_tile(16, 14);
-    move_sprite(16, 0, 24);
+    //set_sprite_tile(16, 14);
+    //move_sprite(16, 0, 24);
 
 
     // Para fluidez
@@ -242,7 +246,7 @@ void Slime_map_move(){
             // Revisar si se puede mover en la dirección seleccionada
             Slime_map_collision();
             
-            // Reiniciar los contadores para animar los pasos del slime y los npc's   
+            // Si se activa bandera de movimiento, los enemigos escogen direccion para moverse
             if(isMoving){
                 for(i = 0; i < nEnemies; i++){
                     auxEnemy = &enemies_array[i];
