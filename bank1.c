@@ -157,7 +157,7 @@ void Enemy_Closest_dir(){
     UINT8 dir, k, rand_;
     rand_ = rand() % 2;
     k = 0;
-    while(k != 1){
+    while(k != 2){
         if(rand_){
             // Si el enemigo está a la derecha del Slime
             if(auxEnemy -> x > player.x){
