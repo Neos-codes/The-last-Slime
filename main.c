@@ -68,7 +68,7 @@ UINT16 bkg_x, bkg_y;
 UINT8 scroll;
 // Utils
 // Iteration
-UINT8 i, j, k;
+UINT8 i, j;
 //----- Random
 UINT16 seed;
 //----- VBlanks
@@ -187,8 +187,8 @@ void main(){
     //set_sprite_tile(15, 9);
     //move_sprite(15, 0, 16);
     // --- Flag Skeleton isMoving
-    //set_sprite_tile(16, 14);
-    //move_sprite(16, 0, 24);
+    set_sprite_tile(16, 14);
+    move_sprite(16, 0, 0);
 
 
     // Para fluidez
@@ -251,7 +251,12 @@ void Slime_map_move(){
                 for(i = 0; i < nEnemies; i++){
                     auxEnemy = &enemies_array[i];
                     //Check_2x1_collisions();
-                    Enemy_Choose_dir();
+                    if(GetSlimeDistance() < 20){
+                        Enemy_Closest_dir();
+                    }
+                    else{
+                        Enemy_Choose_dir();
+                    }
                 }
                 frames_anim = 0;
             }

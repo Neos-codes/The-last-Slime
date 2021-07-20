@@ -154,40 +154,72 @@ void Enemy_Choose_dir(){
 }
 
 void Enemy_Closest_dir(){
+    UINT8 dir, k, rand_;
+    rand_ = rand() % 2;
+    k = 0;
+    while(k != 1){
+        if(rand_){
+            // Si el enemigo está a la derecha del Slime
+            if(auxEnemy -> x > player.x){
+                dir = 3;
+                break;
+            }
+            // SI el enemigo está a la izquierda del slime
+            else if(player.x > auxEnemy -> x){
+                dir = 1;
+                break;
+            }
+        }
+        else{
+            // Si el enemigo está bajo el slime
+            if(auxEnemy -> y > player.y){
+                dir = 0;
+                break;
+            }
+            // Si el enemigo esta sobre el slime
+            else if(player.y > auxEnemy -> y){
+                dir = 2;
+                break;
+            }
+        }
+        rand_ = !rand_;
+        k++;
+    }
 
-    // Si el enemigo está a la derecha del Slime
-    if(auxEnemy -> x > player.x){
-        auxEnemy -> dir = 3;
+    for(k = 0; k < 3; k++){
+        auxEnemy -> dir = dir % 4;
+        Check_2x1_collisions();
+        if(auxEnemy -> isMoving){
+            auxEnemy -> steps = 0;
+            return;
+        }
+        dir++;
     }
-    // SI el enemigo está a la izquierda del slime
-    else if(player.x > auxEnemy -> x){
-        auxEnemy -> dir = 1;
-    }
-    // Si el enemigo está sobre el slime
-    else if(auxEnemy -> y > player.y){
-        auxEnemy -> dir = 2;
-    }
-    else if(player.y > auxEnemy -> y){
-        auxEnemy -> dir = 0;
-    }
+
 }
 
 UINT8 GetSlimeDistance(){
     
-    UINT8 distance_ = 0;
+    UINT8 x1, x2, y1, y2, dist;
+    if(auxEnemy -> x > player.x){
+        x2 = auxEnemy -> x;
+        x1 = player.x;
+    }
+    else{
+        x2 = player.x;
+        x1 = auxEnemy -> x;
+    }
 
-    // Obtener distancia en x
-    if(auxEnemy -> x > player.x)
-        distance_ += auxEnemy -> x - player.x;    
-    else
-        distance_ += player.x - auxEnemy -> x;
-    
-    // Obtener distancia en y
-    if(auxEnemy -> y > player.y)
-        distance_ += auxEnemy -> y - player.y;
-    else
-        distance_ += player.y - auxEnemy -> y;
-    
-    return distance_;
+    if(auxEnemy -> y > player.y){
+        y2 = auxEnemy -> y;
+        y1 = player.y;
+    }
+    else{
+        y2 = player.y;
+        y1 = auxEnemy -> y;
+    }
 
+    dist = (x2 - x1) + (y2 - y1);
+
+    return dist;
 }
