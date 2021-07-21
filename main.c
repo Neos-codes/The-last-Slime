@@ -63,6 +63,7 @@ UINT8 slime_dir;         // 0 up, 1 down, 2 right, 3 left
 UINT8 isMoving;          // Flag TRUE si el Slime se esta moviendo
 UINT8 pixels_moved;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
 UINT8 frames_anim;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
+UINT8 lastSlime_x, lastSlime_y;
 // Background
 UINT16 bkg_x, bkg_y;
 UINT8 scroll;
@@ -110,6 +111,8 @@ void main(){
     // Inicializar parametros de personajes
     player.x = 1;   // para pruebas
     player.y = 1;
+    lastSlime_x = 1;
+    lastSlime_y = 1;
 
     // Inicializar parametros de enemigos
     nEnemies = 2;
@@ -251,7 +254,7 @@ void Slime_map_move(){
                 for(i = 0; i < nEnemies; i++){
                     auxEnemy = &enemies_array[i];
                     //Check_2x1_collisions();
-                    if(GetSlimeDistance() < 20){
+                    if(GetSlimeDistance() < 21){
                         Enemy_Closest_dir();
                     }
                     else{
@@ -334,6 +337,9 @@ void Slime_map_move(){
 }
 
 void Slime_map_collision(){
+    lastSlime_y = player.y;
+    lastSlime_x = player.x;
+    
     if(slime_dir == 0x04U){   // UP
         if(testMap[player.x + 30 * (player.y - 1)] != 0x03){
             isMoving = TRUE;
@@ -430,33 +436,42 @@ void Check_2x1_collisions(){
         if(testMap[auxEnemy -> x + 30 * (auxEnemy -> y - 1)] != 0x03){  // BIEN
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> y -= 2;
+            return;
         }
-        else
+        else{
             auxEnemy -> isMoving = FALSE;
+            return;
+        }
     }
     else if(auxEnemy -> dir == 2){ // DOWN
         if(testMap[auxEnemy -> x + 30 * (auxEnemy -> y + 2)] != 0x03){  // BIEN
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> y += 2;
         }
-        else
+        else{
             auxEnemy -> isMoving = FALSE;
+            return;
+        }
     }
     else if(auxEnemy -> dir == 1){ // RIGHT
         if(testMap[auxEnemy -> x + 2 + 30 * auxEnemy -> y] != 0x03){
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> x += 2;
         }
-        else
+        else{
             auxEnemy -> isMoving = FALSE;
+            return;
+        }
     }
     else if(auxEnemy -> dir == 3){ // LEFT
         if(testMap[auxEnemy -> x - 1 + 30 * auxEnemy -> y] != 0x03){
             auxEnemy -> isMoving = TRUE;
             auxEnemy -> x -= 2;
         }
-        else
+        else{
             auxEnemy -> isMoving = FALSE;
+            return;
+        }
     }
     //knight.isMoving = FALSE;
 }
