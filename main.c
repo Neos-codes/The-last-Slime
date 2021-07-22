@@ -50,6 +50,7 @@ extern void Gameloop();
 extern void Enemy_Choose_dir();
 extern void Enemy_Closest_dir();
 extern UINT8 GetSlimeDistance();
+extern UINT8 Slime_Enemy_Collisions();
 
 UINT8 distance;
 
@@ -124,6 +125,7 @@ void main(){
     enemies_array[0].isMoving = FALSE;
     enemies_array[0].type = 'r';
     enemies_array[0].steps = 0;
+    enemies_array[0].stamina = 1;
     // Test Skeleton
     enemies_array[1].x = 3;
     enemies_array[1].y = 7;
@@ -131,6 +133,7 @@ void main(){
     enemies_array[1].isMoving = FALSE;
     enemies_array[1].type = 's';
     enemies_array[1].steps = 0;
+    enemies_array[1].stamina = 1;
     //enemies_array[0].dir = rand() % 4;
 
 
@@ -190,8 +193,8 @@ void main(){
     //set_sprite_tile(15, 9);
     //move_sprite(15, 0, 16);
     // --- Flag Skeleton isMoving
-    set_sprite_tile(16, 14);
-    move_sprite(16, 0, 0);
+    //set_sprite_tile(16, 14);
+    //move_sprite(16, 0, 0);
 
 
     // Para fluidez
@@ -235,6 +238,7 @@ void Check_scroll_bkg(){
 }
 
 void Slime_map_move(){
+    UINT8 k;
     // Si no se esta moviendo, abierto a recibir inputs de direccion
     if(!isMoving){
         if(input & J_RIGHT || input & J_LEFT || input & J_UP || input & J_DOWN){
@@ -330,6 +334,13 @@ void Slime_map_move(){
             // ----------------------------
             // scroll bkg flag vuelve a ser falso
             scroll = FALSE;
+            // Revisar colisiones con enemigos
+            for(k = 0; k < nEnemies; k++){
+                auxEnemy = &enemies_array[k];
+                if(Slime_Enemy_Collisions()){
+                    move_sprite(15, 8, 16);
+                }
+            }
         }
         // Una vez se mueve los 16 pixeles, se puede recibir input de movimiento nuevamente
 

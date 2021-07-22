@@ -93,6 +93,8 @@ UINT8 GetSlimeDistance();
 UINT8 Check_dir_x(UINT8 *dir);
 UINT8 Check_dir_y(UINT8 *dir);
 
+// Verifica colisiones entre enemigos y Slime
+UINT8 Slime_Enemy_Collisions();
 
 // ------ Implementacion de funciones
 void Gameloop() {
@@ -405,4 +407,13 @@ UINT8 GetSlimeDistance(){
     }
 
     return (x2 - x1) + (y2 - y1);
+}
+
+UINT8 Slime_Enemy_Collisions(){
+    if(player.x == auxEnemy -> x && player.y == auxEnemy -> y && auxEnemy -> stamina != 0){
+        // Fight!
+        return TRUE;
+    }
+
+    return FALSE;
 }
