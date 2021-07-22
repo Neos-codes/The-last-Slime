@@ -361,17 +361,19 @@ UINT8 Check_dir_x(UINT8 *dir){
 
 UINT8 GetSlimeDistance(){
     
+    // Se puede usar lastSlime_x o lastSlime_y, pero funciona mejor con las coordenadas luego de moverse
+
     UINT8 x1, x2, y1, y2;
     // Si el enemigo está a la derecha
-    if(auxEnemy -> x > lastSlime_x){
+    if(auxEnemy -> x > player.x){
         x2 = auxEnemy -> x;
-        x1 = lastSlime_x;
+        x1 = player.x;
         dif_x = TRUE;
         dir_x = 0;
     }
     // Si el enemigo está a la izquierda
-    else if(auxEnemy -> x < lastSlime_x){
-        x2 = lastSlime_x;
+    else if(auxEnemy -> x < player.x){
+        x2 = player.x;
         x1 = auxEnemy -> x;
         dif_x = TRUE;
         dir_x = 1;
@@ -383,15 +385,15 @@ UINT8 GetSlimeDistance(){
     }
 
     // Si el enemigo esta más abajo
-    if(auxEnemy -> y > lastSlime_y){
+    if(auxEnemy -> y > player.y){
         y2 = auxEnemy -> y;
-        y1 = lastSlime_y;
+        y1 = player.y;
         dif_y = TRUE;
         dir_y = 0;
     }
-    else if(auxEnemy -> y < lastSlime_y){
+    else if(auxEnemy -> y < player.y){
         // Si el enemigo esta más arriba
-        y2 = lastSlime_y;
+        y2 = player.y;
         y1 = auxEnemy -> y;
         dif_y = TRUE;
         dir_y = 1;
