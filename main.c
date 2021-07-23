@@ -39,18 +39,20 @@ void Enemy_animMap_handler();
 // Utils
 // ----- RANDOM NUMBERS
 void Set_seed_rand();
-// ----- INPUT
-void Input();
 // ----- VBlanks
 void vbl_update();
 
 // External functions
+// ----- Map Game
 extern unsigned char testMap [];
-extern void Gameloop();
+extern void MapLoop();
 extern void Enemy_Choose_dir();
 extern void Enemy_Closest_dir();
 extern UINT8 GetSlimeDistance();
 extern UINT8 Slime_Enemy_Collisions();
+
+// ----- Battle Game
+extern BattleLoop();
 
 UINT8 distance;
 
@@ -75,6 +77,8 @@ UINT8 i, j;
 UINT16 seed;
 //----- VBlanks
 UINT8 vbl_count;
+//----- Banks
+UINT8 actualBank;
 //========================
 // ----- PER STAGE -----//
 //========================
@@ -95,6 +99,9 @@ void main(){
     // Inicializar utils
     vbl_count = 0;
     distance = 0;
+
+    // Inicializar banks
+    actualBank = 1;
 
     // Inicializar Animaciones
     state = FALSE;
@@ -208,8 +215,16 @@ void main(){
     SHOW_BKG;
     DISPLAY_ON;
 
-    SWITCH_ROM_MBC1(1);
-    Gameloop();
+    while(1){
+        if(actualBank == 1){
+            SWITCH_ROM_MBC1(1);
+            MapLoop();
+        }
+        else if(actualBank == 2){
+            SWITCH_ROM_MBC1(2);
+            BattleLoop();
+        }
+    }
 }
 
 void Check_scroll_bkg(){

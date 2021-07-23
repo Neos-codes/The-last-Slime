@@ -3,54 +3,38 @@
 #include "libs/chars.h"
 #include "Backgrounds/testMap.c"
 
-extern void Scroll_bkg();
 
 // Slime
 // ------ Mechanics
 extern void Slime_map_move();
-extern void Slime_map_collision();
 // ------ Animations
-extern void Slime_anim_idle();
-extern void Slime_anim_moving();
 extern void Slime_animMap_handler();
 // Enemies
 // ------ Mechanics
 // Knight
 extern void Check_2x1_collisions();
-extern void Enemy_2x1_map_move();
 // ------ Animations
 // Knight
-extern void Enemy_anim_idle();
-extern void Enemy_anim_moving();
 extern void Enemy_animMap_handler();
-// Utils
-// ----- RANDOM NUMBERS
-extern void Set_seed_rand();
-// ----- INPUT
-extern void Input();
+
 // ----- VBlanks
 extern void vbl_update();
+
+// ----- Banks
+extern UINT8 actualBank;
 
 //================================
 // ----- Global Variables ----- //
 //================================
 // Slime
-extern UINT8 state;             // Para animaciones (0 - 1)
 extern UINT8 input;             // Aqui guardamos el input completo
-extern UINT8 slime_dir;         // 0 up, 1 down, 2 right, 3 left
 extern UINT8 isMoving;          // Flag TRUE si el Slime se esta moviendo
 extern UINT8 pixels_moved;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
 extern UINT8 frames_anim;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
 extern UINT8 lastSlime_x, lastSlime_y;
-// Background
-extern UINT16 bkg_x, bkg_y;
-extern UINT8 scroll;
 // Utils
 //----- Iterations
 extern UINT8 i, j;
-//----- Random
-//extern UINT8 rand_;
-extern UINT16 seed;
 //----- VBlanks
 extern UINT8 vbl_count;
 //========================
@@ -70,7 +54,6 @@ extern UINT8 nEnemies;
 //=====================================
 //---------Internal Variables----------
 //=====================================
-UINT8 dir_flag;
 UINT8 dif_x, dif_y;
 UINT8 dir_x, dir_y;
 
@@ -83,7 +66,7 @@ UINT8 dir_x, dir_y;
 // ----- Definiciones de funciones
 
 // Donde funciona el juego en los mapas
-void Gameloop();
+void MapLoop();
 // Escoge una dirección estandar para los enemigos
 void Enemy_Choose_dir();
 // A menos de un radio "r^2" de distancia, persigue al jugador
@@ -97,9 +80,8 @@ UINT8 Check_dir_y(UINT8 *dir);
 UINT8 Slime_Enemy_Collisions();
 
 // ------ Implementacion de funciones
-void Gameloop() {
+void MapLoop() {
 
-    dir_flag = FALSE;
   //set_bkg_tiles(0, 0, 30, 30, testBkg);
 
   // Loop de juego
@@ -111,8 +93,14 @@ void Gameloop() {
 
         
         // Solo se puede recibir input cuando slime está quieto
-        if(!isMoving)
+        if(!isMoving){
             input = joypad();
+            // Cambiar de mapa
+            if(input & J_A){
+                actualBank = 2;
+                return;
+            }
+        }
         
         Slime_map_move();
         
