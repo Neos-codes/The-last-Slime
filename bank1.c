@@ -50,6 +50,7 @@ extern struct Enemy *auxEnemy;
 
 extern struct Enemy enemies_array[5];
 extern UINT8 nEnemies;
+extern UINT8 battleEnemy_index;
 
 //=====================================
 //---------Internal Variables----------
@@ -77,9 +78,6 @@ UINT8 Check_dir_x(UINT8 *dir);
 UINT8 Check_dir_y(UINT8 *dir);
 
 // Verifica colisiones entre enemigos y Slime
-UINT8 Slime_Enemy_Collisions();
-
-// ------ Implementacion de funciones
 void MapLoop() {
 
   //set_bkg_tiles(0, 0, 30, 30, testBkg);
@@ -87,8 +85,9 @@ void MapLoop() {
   // Loop de juego
     while(1){
 
-        if(!vbl_count)
+        if(!vbl_count){
             wait_vbl_done();
+        }
         vbl_count = 0;
 
         
@@ -98,6 +97,8 @@ void MapLoop() {
             // Cambiar de mapa
             if(input & J_A){
                 actualBank = 2;
+                // Apuntar al enemigo con el cual vamos a pelear
+                auxEnemy = &enemies_array[1];
                 return;
             }
         }

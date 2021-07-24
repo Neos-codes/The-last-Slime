@@ -52,7 +52,7 @@ extern UINT8 GetSlimeDistance();
 extern UINT8 Slime_Enemy_Collisions();
 
 // ----- Battle Game
-extern BattleLoop();
+extern void BattleLoop();
 
 UINT8 distance;
 
@@ -93,6 +93,8 @@ UINT8 nEnemies;
 struct Enemy *auxEnemy;
 
 struct Enemy enemies_array[5];
+
+UINT8 battleEnemy_index;
 
 
 void main(){
