@@ -9,7 +9,10 @@ extern struct Enemy *auxEnemy;
 
 // Sobre personajes
 extern UINT8 nEnemies;
-extern UINT8 battleEnemy_index;
+
+// Sobre animaciones
+extern UINT8 state;
+extern UINT8 frames_anim;
 // ----- VBlanks
 extern void vbl_update();
 
@@ -18,10 +21,24 @@ extern UINT8 vbl_count;
 // ----- Banks
 extern UINT8 actualBank;
 
+// Funciones externas
+extern void Slime_anim_idle();
+extern void Enemy_anim_idle();
+
+// Funciones internas
+
+// Inicializa los parametros de batalla
+void IniBattle();
+void HideSprites();
+void BattleLoop();
+
+
 
 // Internal shit
 void IniBattle(){
+
     UINT8 eSprite;
+    //HideSprites();
     //auxEnemy = &enemies_array[eIndex];
     eSprite = auxEnemy -> sprite;
     // Posicionar slime en la casilla central
@@ -39,10 +56,15 @@ void IniBattle(){
         move_sprite(eSprite + 3, 120, 88);
 
     }
+
+    // Inicializar parametros para animaciones
+    frames_anim = 0;
+    state = FALSE;
     
 
 
 }
+
 
 void BattleLoop(){
 
@@ -56,10 +78,15 @@ void BattleLoop(){
             wait_vbl_done();
         vbl_count = 0;
 
+        Slime_anim_idle();
+        Enemy_anim_idle();
+
     
         if(joypad() & J_START){
             actualBank = 1;
             return;
         }
-    }
+
+        frames_anim++;
+    } // ENDWHILE
 }

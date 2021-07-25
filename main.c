@@ -39,6 +39,8 @@ void Enemy_animMap_handler();
 // Utils
 // ----- RANDOM NUMBERS
 void Set_seed_rand();
+// -----
+void HideSprites();
 // ----- VBlanks
 void vbl_update();
 
@@ -148,7 +150,7 @@ void main(){
 
     // Inicializar parametros de animaciones
     state = FALSE;
-    frames_anim = FALSE;
+    frames_anim = 0;
     // De movimientos
     pixels_moved = 0;
     isMoving = FALSE;
@@ -224,6 +226,7 @@ void main(){
         }
         else if(actualBank == 2){
             SWITCH_ROM_MBC1(2);
+            HideSprites();
             BattleLoop();
         }
     }
@@ -414,6 +417,22 @@ void Set_seed_rand(){
     initrand(seed);
     if(seed == 255)
         seed = 0;
+}
+
+// Esconde los sprites al cambiar de bank
+void HideSprites(){
+    UINT8 k, sprite;
+    for(k = 0; k < nEnemies; k++){
+        sprite = enemies_array[k].sprite;
+        if((struct Enemy *)&enemies_array[k] != (struct Enemy *)auxEnemy){
+            move_sprite(sprite, 0, 0);
+            move_sprite(sprite + 1, 0, 0);
+            if(enemies_array[k].type == 's'){
+                move_sprite(sprite + 2, 0, 0);
+                move_sprite(sprite + 3, 0, 0);
+            }
+        }
+    }
 }
 
 void Slime_anim_idle(){
