@@ -32,6 +32,7 @@ void Slime_animMap_handler();
 void Check_2x1_collisions();
 void Enemy_2x1_map_move();
 // ------ Animations
+// Las animaciones de los enemigos deben ir antes que la del Slime
 // Knight
 void Enemy_anim_idle();
 void Enemy_anim_moving();
@@ -40,6 +41,7 @@ void Enemy_animMap_handler();
 // ----- RANDOM NUMBERS
 void Set_seed_rand();
 // -----
+// Esconde los sprites de los enemigos al comenzar una batalla
 void HideSprites();
 // ----- VBlanks
 void vbl_update();
@@ -108,7 +110,7 @@ void main(){
     actualBank = 1;
 
     // Inicializar Animaciones
-    state = FALSE;
+    state = TRUE;
     input = 0;
     slime_dir = 0;
     isMoving = FALSE;
@@ -148,12 +150,6 @@ void main(){
     //enemies_array[0].dir = rand() % 4;
 
 
-    // Inicializar parametros de animaciones
-    state = FALSE;
-    frames_anim = 0;
-    // De movimientos
-    pixels_moved = 0;
-    isMoving = FALSE;
     // Inicializar parametros de RANDOM
     seed = 0;
 
