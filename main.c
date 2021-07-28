@@ -98,13 +98,22 @@ struct Enemy *auxEnemy;
 
 struct Enemy enemies_array[5];
 
-UINT8 battleEnemy_index;
+//==========================
+//------IN BATTLE VARS------
+//==========================
+UINT8 frames_move;
+UINT8 avoiding;
 
 
 void main(){
     // Inicializar utils
     vbl_count = 0;
     distance = 0;
+
+    // Battle vars
+    frames_move = 0;
+    avoiding = FALSE;
+
 
     // Inicializar banks
     actualBank = 1;
