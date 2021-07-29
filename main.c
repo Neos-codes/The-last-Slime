@@ -36,6 +36,7 @@ void Enemy_2x1_map_move();
 // Knight
 void Enemy_anim_idle();
 void Enemy_anim_moving();
+// Escoge cual animación hacer segun la accion del enemigo
 void Enemy_animMap_handler();
 // Utils
 // ----- RANDOM NUMBERS
@@ -103,6 +104,8 @@ struct Enemy enemies_array[5];
 //==========================
 UINT8 frames_move;
 UINT8 avoiding;
+UINT8 eIndex;
+UINT8 fighting;
 
 
 void main(){
@@ -111,8 +114,10 @@ void main(){
     distance = 0;
 
     // Battle vars
-    frames_move = 0;
-    avoiding = FALSE;
+    eIndex = 0;          // Index enemigo a pelear
+    frames_move = 0;     // Cuantos pixeles se mueve slime en la batalla
+    avoiding = FALSE;    // Bool estado cuando slime está esquivando
+    fighting = FALSE;    // Bool estado activa cuando slime está en una batalla
 
 
     // Inicializar banks
@@ -292,13 +297,11 @@ void Slime_map_move(){
                 }
                 frames_anim = 0;
             }
-            // ------ TESTING
-            //if(isMoving)
-            //    scroll_sprite(15, 1, 1);  // Flag de captura de movimiento
         }
     }
     
-    // Si se está moviendo, terminar de mover 8 pixeles con la ultima direccion obtenida
+    // Si se está moviendo, mueve a los enemigos y 
+    // termina de mover 8 pixeles con la ultima direccion obtenida
     if(isMoving){
         for(i = 0; i < nEnemies; i++){
             auxEnemy = &enemies_array[i];
@@ -363,7 +366,11 @@ void Slime_map_move(){
             for(k = 0; k < nEnemies; k++){
                 auxEnemy = &enemies_array[k];
                 if(Slime_Enemy_Collisions()){
-                    move_sprite(15, 8, 16);
+                    move_sprite(15, 8 + k * 8, 16);
+                    actualBank = 2;
+                    eIndex = k;
+                    fighting = TRUE;
+                    return;
                 }
             }
         }

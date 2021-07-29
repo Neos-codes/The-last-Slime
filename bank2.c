@@ -58,6 +58,13 @@ void Return_toCenter();
 // Tomar input para interactuar
 void Take_Input();
 
+// ----- Ataques de enemigos
+// Activa el ataque del enemigo, dentro de esta funcion se mueve el enemigo y hace daño
+void Enemy_Attack();
+// Mueve al enemigo mientras ataca, va dentro de "Enemy_Attack()"
+void Enemy_Atk_Move();
+
+
 //========================================
 //--- Desarrollo de funciones internas ---
 //========================================
@@ -68,6 +75,7 @@ void IniBattle(){
     //HideSprites();
     //auxEnemy = &enemies_array[eIndex];
     eSprite = auxEnemy -> sprite;
+
     // Posicionar slime en la casilla central
     move_sprite(0, 48, 88);
     move_sprite(1, 48, 80);
@@ -229,5 +237,21 @@ void Return_toCenter(){
     }
 }
 
+void Enemy_Attack(){
 
+    // Escoger timing en frames
+
+    // Mover al enemigo
+
+    // Verificar si está en una casilla que haga daño
+
+    // Hacer daño
+
+}
+
+void Enemy_Atk_Move(){
+
+    // Mover al enemigo en base de frames
+
+}
 

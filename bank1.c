@@ -50,7 +50,8 @@ extern struct Enemy *auxEnemy;
 
 extern struct Enemy enemies_array[5];
 extern UINT8 nEnemies;
-extern UINT8 battleEnemy_index;
+extern UINT8 fighting;
+extern UINT8 eIndex;
 
 //=====================================
 //---------Internal Variables----------
@@ -98,7 +99,7 @@ void MapLoop() {
             if(input & J_A){
                 actualBank = 2;
                 // Apuntar al enemigo con el cual vamos a pelear
-                auxEnemy = &enemies_array[1];
+                auxEnemy = &enemies_array[0];
                 return;
             }
         }
@@ -110,6 +111,11 @@ void MapLoop() {
 
         // Animaciones del Slime
         Slime_animMap_handler();
+
+        if(fighting){
+            auxEnemy = &enemies_array[eIndex];
+            return;
+        }
 
 
         // Para frames de animacion
@@ -403,6 +409,5 @@ UINT8 Slime_Enemy_Collisions(){
         // Fight!
         return TRUE;
     }
-
     return FALSE;
 }
