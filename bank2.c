@@ -1,4 +1,5 @@
 #include <gb/gb.h>
+#include <rand.h>
 #include "libs/chars.h"
 #include "Backgrounds/testBattle.c"
 
@@ -23,6 +24,13 @@ extern UINT8 isMoving;
 extern UINT8 slime_dir;
 extern UINT8 pixels_moved;
 extern UINT8 avoiding;
+
+// Estados de enemigos
+extern UINT8 eAtacking;
+extern UINT16 eFrames;
+extern UINT16 eTiming;
+
+
 
 // Sobre animaciones
 extern UINT8 state;
@@ -69,6 +77,8 @@ void Enemy_Atk_Move();
 //--- Desarrollo de funciones internas ---
 //========================================
 
+// TO DO: FALTA ARREGLAR EL "RAND" para timing de enemigo
+
 void IniBattle(){
 
     UINT8 eSprite;
@@ -106,6 +116,11 @@ void IniBattle(){
     pixels_moved = 0;
     state = FALSE;
     isMoving = FALSE;
+
+    // Inicializar parametros de enemigos en batalla
+    eAtacking = FALSE;     // Estado si enemigo está atacando
+    eFrames = 0;           // Frames de juego que pasan para que eAtacking se active (compara con eTiming)
+    eTiming = 0;           // Frames de juego que deben pasar para que eAtacking se active
 }
 
 void BattleLoop(){
@@ -120,17 +135,48 @@ void BattleLoop(){
             wait_vbl_done();
         vbl_count = 0;
 
+        //====== ANIMACIONES ======//
+
         Enemy_anim_idle();
         Slime_anim_idle();
 
         input = joypad();
+
+        //====== INPUT EN BATALLA ======//
 
         // Solo si no se está moviendo, se toman los inputs para esquivar
         if(!isMoving){
             Take_Input();
         }
 
-        // Mover al slime
+        //====== TIMING DE ATAQUE PARA EL ENEMIGO ======// (El enemigo aun no ataca)
+
+        // Escoger timing para atque de enemigo si no está atacando
+        if(eTiming == 0 && !eAtacking){
+            eTiming = rand() % 1000;      // Setear valor en un rango para que el enemigo ataque 
+        }
+        else if(!eAtacking){              // El timing corre mientras no esté atacando
+            if(eFrames == eTiming){  // Si se alcanza el timing de ataque
+                move_sprite(15, 8, 16);
+                eAtacking = TRUE;
+                eFrames = 0;         // eFrames se reutiliza para contar pixeles movidos al enemigo
+                eTiming = 0;         // Reiniciar contador
+            }
+            else{                    // Si aun no alcanza el timing, aumentar en 1
+                eFrames++;
+            }
+        }
+
+        //======== ENEMIGO ATACANDO ========//
+        if(eAtacking){
+            Enemy_Attack();
+        }
+
+
+
+
+        //====== MOVIMIENTO DEL SLIME ======//
+
         if(isMoving){
             // Moverlo del centro
             if(avoiding){
@@ -141,10 +187,8 @@ void BattleLoop(){
                 Return_toCenter();
             }
         }
-
-        // Debug de posicion
-        //move_sprite(15, 8 + 8 * slime_dir, 16);
         
+        //====== FRAMES DE ANIMACIONES ======//
         frames_anim++;
 
     } // ENDWHILE
@@ -239,9 +283,7 @@ void Return_toCenter(){
 
 void Enemy_Attack(){
 
-    // Escoger timing en frames
-
-    // Mover al enemigo
+    Enemy_Atk_Move();
 
     // Verificar si está en una casilla que haga daño
 
@@ -250,6 +292,43 @@ void Enemy_Attack(){
 }
 
 void Enemy_Atk_Move(){
+    UINT8 eSprite;
+
+    eSprite = auxEnemy -> sprite;
+
+    if(eFrames < 24){    // Si enemigo se mueve hacia atrás para preparar ataque
+        if(auxEnemy -> type != 's'){
+            // Para enemigos de 2 sprites
+            scroll_sprite(eSprite, 1, 0);
+            scroll_sprite(eSprite + 1, 1, 0);
+        }
+        else{
+            // Para enemigos de 4 sprites, mover los sprites faltantes
+            scroll_sprite(eSprite + 2, 1, 0);
+            scroll_sprite(eSprite + 3, 1, 0);
+        }
+    }
+    else{               // Si enemigo arremete hacia Slime
+        if(auxEnemy -> type != 's'){
+            // Para enemigos de 2 sprites
+            scroll_sprite(eSprite, -4, 0);
+            scroll_sprite(eSprite + 1, -4, 0);
+        }
+        else{
+            // Para enemigos de 4 sprites, mover los sprites faltantes
+            scroll_sprite(eSprite + 2, -4, 0);
+            scroll_sprite(eSprite + 3, -4, 0);
+        }
+
+        if(eFrames == 29){
+            eFrames = 0;
+            eAtacking = FALSE;
+        }
+    }
+
+    eFrames++;
+
+
 
     // Mover al enemigo en base de frames
 

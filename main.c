@@ -106,6 +106,10 @@ UINT8 frames_move;
 UINT8 avoiding;
 UINT8 eIndex;
 UINT8 fighting;
+// Estados de enemigos
+UINT8 eAtacking;
+UINT16 eFrames;
+UINT16 eTiming;
 
 
 void main(){
