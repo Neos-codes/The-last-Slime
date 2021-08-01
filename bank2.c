@@ -78,6 +78,7 @@ void Enemy_Atk_Move();
 //========================================
 
 // TO DO: FALTA ARREGLAR EL "RAND" para timing de enemigo
+// Para mantener la racha
 
 void IniBattle(){
 
