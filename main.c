@@ -110,6 +110,7 @@ UINT8 fighting;
 UINT8 eAtacking;
 UINT16 eFrames;
 UINT16 eTiming;
+UINT8 atk_flag;
 
 
 void main(){
@@ -141,6 +142,7 @@ void main(){
     scroll = FALSE;
 
     // Inicializar parametros de personajes
+    player.hp = 3;
     player.x = 1;   // para pruebas
     player.y = 1;
     lastSlime_x = 1;
@@ -198,6 +200,7 @@ void main(){
     // Knight
     set_sprite_tile(4, 9);
     set_sprite_tile(5, 10);
+    enemies_array[0].stamina = 3;
     move_sprite(4, 8 + 8 * enemies_array[0].x, 16 + 8 * enemies_array[0].y);
     move_sprite(5, 8 + 8 * enemies_array[0].x, 16 + 8 * (enemies_array[0].y + 1));
     // Skeleton
@@ -205,6 +208,7 @@ void main(){
     set_sprite_tile(7, 13);
     set_sprite_tile(8, 14);
     set_sprite_tile(9, 15);
+    enemies_array[1].stamina = 3;
     move_sprite(6, 8 + 8 * enemies_array[1].x, 16 + 8 * enemies_array[1].y + 1);   // .y + 1 por animacion idle
     move_sprite(7, 8 + 8 * enemies_array[1].x, 16 + 8 * (enemies_array[1].y + 1));
     move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y + 1);  // .y + 1 por anim idle

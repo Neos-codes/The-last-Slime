@@ -29,6 +29,7 @@ extern UINT8 avoiding;
 extern UINT8 eAtacking;
 extern UINT16 eFrames;
 extern UINT16 eTiming;
+extern UINT8 atk_flag;
 
 
 
@@ -71,6 +72,8 @@ void Take_Input();
 void Enemy_Attack();
 // Mueve al enemigo mientras ataca, va dentro de "Enemy_Attack()"
 void Enemy_Atk_Move();
+// Si la bandera atk_flag es activa, verifica la posicion del slime con la zona de ataque del slime
+void Collision_Atk();
 
 
 //========================================
@@ -122,6 +125,7 @@ void IniBattle(){
     eAtacking = FALSE;     // Estado si enemigo está atacando
     eFrames = 0;           // Frames de juego que pasan para que eAtacking se active (compara con eTiming)
     eTiming = 0;           // Frames de juego que deben pasar para que eAtacking se active
+    atk_flag = FALSE;      // TRUE cuando el enemigo alcanza la zona de juego del slime (verificacion de daño)
 }
 
 void BattleLoop(){
@@ -218,32 +222,32 @@ void Avoid_Slime(){
      la celda de esquivar */
 
     // Esquivar hacia arriba
-    if(pixels_moved < 16){
+    if(pixels_moved < 8){
         if(slime_dir == 1){
-            scroll_sprite(0, 0, -2);
-            scroll_sprite(1, 0, -2);
-            scroll_sprite(2, 0, -2);
-            scroll_sprite(3, 0, -2);
+            scroll_sprite(0, 0, -4);
+            scroll_sprite(1, 0, -4);
+            scroll_sprite(2, 0, -4);
+            scroll_sprite(3, 0, -4);
         }
         // Esquivar hacia abajo
         else if(slime_dir == 2){
-            scroll_sprite(0, 0, 2);
-            scroll_sprite(1, 0, 2);
-            scroll_sprite(2, 0, 2);
-            scroll_sprite(3, 0, 2);
+            scroll_sprite(0, 0, 4);
+            scroll_sprite(1, 0, 4);
+            scroll_sprite(2, 0, 4);
+            scroll_sprite(3, 0, 4);
         }
         // Esquivar hacia la izquierda
         else if(slime_dir == 3){
-            scroll_sprite(0, -2, 0);
-            scroll_sprite(1, -2, 0);
-            scroll_sprite(2, -2, 0);
-            scroll_sprite(3, -2, 0);
+            scroll_sprite(0, -4, 0);
+            scroll_sprite(1, -4, 0);
+            scroll_sprite(2, -4, 0);
+            scroll_sprite(3, -4, 0);
         }
     }
 
     pixels_moved++;
 
-    if(pixels_moved == 32){
+    if(pixels_moved == 16){
         pixels_moved = 0;
         avoiding = FALSE;
     }
@@ -253,29 +257,29 @@ void Avoid_Slime(){
 void Return_toCenter(){
     // Si estaba arriba, volver al centro
     if(slime_dir == 1){
-        scroll_sprite(0, 0, 2);
-        scroll_sprite(1, 0, 2);
-        scroll_sprite(2, 0, 2);
-        scroll_sprite(3, 0, 2);
+        scroll_sprite(0, 0, 4);
+        scroll_sprite(1, 0, 4);
+        scroll_sprite(2, 0, 4);
+        scroll_sprite(3, 0, 4);
     }
     // Si estaba abajo, volver al centro
     else if(slime_dir == 2){
-        scroll_sprite(0, 0, -2);
-        scroll_sprite(1, 0, -2);
-        scroll_sprite(2, 0, -2);
-        scroll_sprite(3, 0, -2);
+        scroll_sprite(0, 0, -4);
+        scroll_sprite(1, 0, -4);
+        scroll_sprite(2, 0, -4);
+        scroll_sprite(3, 0, -4);
     }
     // Si estaba a la izquierda, volver al centro
     else if(slime_dir == 3){
-        scroll_sprite(0, 2, 0);
-        scroll_sprite(1, 2, 0);
-        scroll_sprite(2, 2, 0);
-        scroll_sprite(3, 2, 0);
+        scroll_sprite(0, 4, 0);
+        scroll_sprite(1, 4, 0);
+        scroll_sprite(2, 4, 0);
+        scroll_sprite(3, 4, 0);
     }
 
     pixels_moved++;
 
-    if(pixels_moved == 16){
+    if(pixels_moved == 8){
         pixels_moved = 0;
         slime_dir = 0;
         isMoving = FALSE;
@@ -286,6 +290,9 @@ void Enemy_Attack(){
 
     Enemy_Atk_Move();
 
+    if(atk_flag){
+        Collision_Atk();
+    }
     // Verificar si está en una casilla que haga daño
 
     // Hacer daño
@@ -298,40 +305,103 @@ void Enemy_Atk_Move(){
     eSprite = auxEnemy -> sprite;
 
     if(eFrames < 24){    // Si enemigo se mueve hacia atrás para preparar ataque
-        if(auxEnemy -> type != 's'){
-            // Para enemigos de 2 sprites
-            scroll_sprite(eSprite, 1, 0);
-            scroll_sprite(eSprite + 1, 1, 0);
-        }
-        else{
+        
+        // Mover sprites base del enemigo
+        scroll_sprite(eSprite, 1, 0);
+        scroll_sprite(eSprite + 1, 1, 0);
+        if(auxEnemy -> type == 's'){
             // Para enemigos de 4 sprites, mover los sprites faltantes
             scroll_sprite(eSprite + 2, 1, 0);
             scroll_sprite(eSprite + 3, 1, 0);
         }
     }
-    else{               // Si enemigo arremete hacia Slime
-        if(auxEnemy -> type != 's'){
-            // Para enemigos de 2 sprites
-            scroll_sprite(eSprite, -4, 0);
-            scroll_sprite(eSprite + 1, -4, 0);
-        }
-        else{
+    else if(eFrames < 29){               // Si enemigo arremete hacia Slime
+        // Mover sprites base del enemigo
+        scroll_sprite(eSprite, -16, 0);
+        scroll_sprite(eSprite + 1, -16, 0);
+        if(auxEnemy -> type == 's'){
             // Para enemigos de 4 sprites, mover los sprites faltantes
-            scroll_sprite(eSprite + 2, -4, 0);
-            scroll_sprite(eSprite + 3, -4, 0);
+            scroll_sprite(eSprite + 2, -16, 0);
+            scroll_sprite(eSprite + 3, -16, 0);
         }
 
+    }
+    else if(eFrames < 35){   // Quedarse en posición de ataque un par de segundos
+            UINT8 shake_dir;
+            // Verificacion de daño en el primer frame de ataque (frame 29)
         if(eFrames == 29){
+            atk_flag = TRUE;
+        }
+        else{
+            atk_flag = FALSE;
+        }
+
+        if(eFrames & 1){   // Si eFrames es par
+            shake_dir = -1;
+        }
+        else{
+            shake_dir = 1;
+        }
+        
+        // Mover sprites base del enemigo
+        scroll_sprite(eSprite, 0, shake_dir);
+        scroll_sprite(eSprite + 1, 0, shake_dir);
+        if(auxEnemy -> type == 's'){
+            // Para enemigos de 4 sprites, mover los sprites faltantes
+            scroll_sprite(eSprite + 2, 0, shake_dir);
+            scroll_sprite(eSprite + 3, 0, shake_dir);
+        }
+
+    }
+    else{       // Si ya arremetió, volver a su posición central
+
+        // Mover sprites base del enemigo
+        scroll_sprite(eSprite, 8, 0);
+        scroll_sprite(eSprite + 1, 8, 0);
+        if(auxEnemy -> type == 's'){
+            // Para enemigos de 4 sprites, mover los sprites faltantes
+            scroll_sprite(eSprite + 2, 8, 0);
+            scroll_sprite(eSprite + 3, 8, 0);
+        }
+        
+        // Si el ataque termina, reiniciar parametros de ataque
+        if(eFrames == 41){
             eFrames = 0;
             eAtacking = FALSE;
+            auxEnemy -> stamina--;   // Quitar 1 de estamina al enemigo
+        }
+    }
+    // Mover al enemigo en base de frames
+    eFrames++;
+}
+
+void Collision_Atk(){
+    
+    // Por el momento el daño es solo cuando el slime está en el centro
+    if(slime_dir == 0){
+        // Animacion de daño
+        if(player.hp > 1){
+            player.hp--;
+        }
+        else{
+            // Matar slime
+            move_sprite(0, 8, 24);
+            move_sprite(1, 8, 16);
+            move_sprite(2, 16, 16);
+            move_sprite(3, 16, 24);
         }
     }
 
-    eFrames++;
-
-
-
-    // Mover al enemigo en base de frames
-
+    // Si el enemigo se queda sin stamina
+    if(auxEnemy -> stamina == 0){
+        // Mover sprites base del enemigo
+        move_sprite(auxEnemy -> sprite, 112, 16);
+        move_sprite(auxEnemy -> sprite + 1, 112, 24);
+        if(auxEnemy -> type == 's'){
+            // Para enemigos de 4 sprites, mover los sprites faltantes
+            move_sprite(auxEnemy -> sprite + 2, 112, 16);
+            move_sprite(auxEnemy -> sprite + 3, 112, 24);
+        }
+    }
 }
 
