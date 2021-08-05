@@ -106,15 +106,18 @@ struct Enemy enemies_array[5];
 //==========================
 //------IN BATTLE VARS------
 //==========================
+// Estados del Slime
 UINT8 avoiding;
-UINT8 eStamina;
-UINT8 eIndex;
 UINT8 fighting;
+UINT8 isDead;
 // Estados de enemigos
 UINT8 eAtacking;
 UINT16 eFrames;
 UINT16 eTiming;
+UINT8 eStamina;
 UINT8 atk_flag;
+// Utils para la batalla
+UINT8 eIndex;    // Guarda el indice del enemigo
 
 
 void main(){
@@ -184,6 +187,7 @@ void IniGame(){
     player.y = 1;
     lastSlime_x = 1;
     lastSlime_y = 1;
+    isDead = FALSE;
 
     // Inicializar parametros de enemigos
     nEnemies = 2;
@@ -195,7 +199,8 @@ void IniGame(){
     enemies_array[0].isMoving = FALSE;
     enemies_array[0].type = 'r';
     enemies_array[0].steps = 0;
-    enemies_array[0].stamina = 1;
+    enemies_array[0].stamina = 3;
+    enemies_array[0].resting = 0;
     // Test Skeleton
     enemies_array[1].x = 3;
     enemies_array[1].y = 7;
@@ -203,7 +208,8 @@ void IniGame(){
     enemies_array[1].isMoving = FALSE;
     enemies_array[1].type = 's';
     enemies_array[1].steps = 0;
-    enemies_array[1].stamina = 1;
+    enemies_array[1].stamina = 3;
+    enemies_array[1].resting = 0;
     //enemies_array[0].dir = rand() % 4;
 
 
@@ -237,7 +243,6 @@ void IniGame(){
     // Knight
     set_sprite_tile(4, 9);
     set_sprite_tile(5, 10);
-    enemies_array[0].stamina = 3;
     move_sprite(4, 8 + 8 * enemies_array[0].x, 16 + 8 * enemies_array[0].y);
     move_sprite(5, 8 + 8 * enemies_array[0].x, 16 + 8 * (enemies_array[0].y + 1));
     // Skeleton
@@ -245,7 +250,6 @@ void IniGame(){
     set_sprite_tile(7, 13);
     set_sprite_tile(8, 14);
     set_sprite_tile(9, 15);
-    enemies_array[1].stamina = 3;
     move_sprite(6, 8 + 8 * enemies_array[1].x, 16 + 8 * enemies_array[1].y + 1);   // .y + 1 por animacion idle
     move_sprite(7, 8 + 8 * enemies_array[1].x, 16 + 8 * (enemies_array[1].y + 1));
     move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y + 1);  // .y + 1 por anim idle

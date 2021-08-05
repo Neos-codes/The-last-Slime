@@ -15,7 +15,11 @@ extern struct Slime player;
 extern struct Enemy *enemies_array;
 extern struct Enemy *auxEnemy;
 
-// Sobre personajes
+//----- Sobre personajes
+// Estados del Slime
+extern UINT8 isDead;
+
+// Cantidad de enemigos
 extern UINT8 nEnemies;
 
 // Sobre interacciones
@@ -46,6 +50,7 @@ extern UINT8 vbl_count;
 extern UINT8 actualBank;
 
 // Funciones externas
+extern void IniGame();          // Reiniciar el juego si Slime muere
 extern void Slime_anim_idle();
 extern void Enemy_anim_idle();
 
@@ -88,7 +93,6 @@ void IniBattle(){
 
     UINT8 eSprite;
     //HideSprites();
-    //auxEnemy = &enemies_array[eIndex];
     eSprite = auxEnemy -> sprite;
 
     // Posicionar slime en la casilla central
@@ -96,6 +100,10 @@ void IniBattle(){
     move_sprite(1, 48, 80);
     move_sprite(2, 56, 80);
     move_sprite(3, 56, 88);
+
+    // Background position
+    // El background debe estar en 0, 0 para mostrar mapa de batalla correctamente
+    move_bkg(0, 0);
 
     
     // Posicionar enemigo en su casilla
@@ -182,8 +190,11 @@ void BattleLoop(){
         }
 
 
-        // Si cambiamos de bank, significa que el enemigo se cansó
+        // Si cambiamos de bank, significa que el enemigo se cansó o el Slime murió
         if(actualBank == 1){
+            if(isDead){     // Si el slime murió, reiniciar todo el juego
+                IniGame();
+            }
             return;
         }
 
@@ -398,11 +409,17 @@ void Collision_Atk(){
             player.hp--;
         }
         else{
+            player.hp = 0;
+            isDead = TRUE;
+            actualBank = 1;
+
+            /*
             // Matar slime
             move_sprite(0, 8, 24);
             move_sprite(1, 8, 16);
             move_sprite(2, 16, 16);
             move_sprite(3, 16, 24);
+            */
         }
     }
 
@@ -412,16 +429,6 @@ void Collision_Atk(){
         auxEnemy -> resting = 3;
         actualBank = 1;
         return;
-        
-        
-        // Mover sprites base del enemigo
-        move_sprite(auxEnemy -> sprite, 112, 16);
-        move_sprite(auxEnemy -> sprite + 1, 112, 24);
-        if(auxEnemy -> type == 's'){
-            // Para enemigos de 4 sprites, mover los sprites faltantes
-            move_sprite(auxEnemy -> sprite + 2, 112, 16);
-            move_sprite(auxEnemy -> sprite + 3, 112, 24);
-        }
     }
 }
 

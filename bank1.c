@@ -42,6 +42,9 @@ extern UINT8 vbl_count;
 //========================
 // ----- PER STAGE -----//
 //========================
+// Coordenadas background
+extern UINT8 bkg_x, bkg_y;
+
 
 // Slime "instance" (struct)
 extern struct Slime player;
@@ -82,22 +85,26 @@ void IniMap(){
         //enemies_array[i].stamina = 3;
 
         // Posicionar enemigos
-        move_sprite(enemies_array[i].sprite, 8 + 8 * enemies_array[i].x, 16 + 8 * enemies_array[i].y);
-        move_sprite(enemies_array[i].sprite + 1, 8 + 8 * enemies_array[i].x, 16 + (8 * enemies_array[i].y + 1));
+        move_sprite(enemies_array[i].sprite, 8 + 8 * enemies_array[i].x - bkg_x, 16 + 8 * enemies_array[i].y - bkg_y);
+        move_sprite(enemies_array[i].sprite + 1, 8 + 8 * enemies_array[i].x - bkg_x, 16 + 8 * (enemies_array[i].y + 1) - bkg_y);
         if(enemies_array[i].type == 's'){
-            move_sprite(enemies_array[i].sprite + 1, 8 + 8 * (enemies_array[i].x + 1), 16 + 8 * enemies_array[i].y);
-            move_sprite(enemies_array[i].sprite + 1, 8 + 8 * (enemies_array[i].x + 1), 16 + (8 * enemies_array[i].y + 1));
+            move_sprite(enemies_array[i].sprite + 2, 8 + 8 * (enemies_array[i].x + 1) - bkg_x, 16 + 8 * enemies_array[i].y - bkg_y);
+            move_sprite(enemies_array[i].sprite + 3, 8 + 8 * (enemies_array[i].x + 1) - bkg_x, 16 + 8 * (enemies_array[i].y + 1) - bkg_y);
         }
     }
 
     // Load Map
     set_bkg_tiles(0, 0, 30, 30, testMap);
 
+    // Set bkg position
+    move_bkg(bkg_x, bkg_y);
+
     // Set Slime Position
-    move_sprite(0, 8 + 8 * player.x, 16 + 8 * (player.y + 1));
-    move_sprite(1, 8 + 8 * player.x, 16 + 8 * player.y);
-    move_sprite(2, 8 + 8 * (player.x + 1), 16 + 8 * player.y);
-    move_sprite(3, 8 + 8 * (player.x + 1), 16 + 8 * (player.y + 1));
+    // Todas las coordenadas con "- bkg_x o y" por el desfase que hay al hacer scroll en el background
+    move_sprite(0, 8 + 8 * player.x - bkg_x, 16 + 8 * (player.y + 1) - bkg_y);
+    move_sprite(1, 8 + 8 * player.x - bkg_x, 16 + 8 * player.y - bkg_y);
+    move_sprite(2, 8 + 8 * (player.x + 1) - bkg_x, 16 + 8 * player.y - bkg_y);
+    move_sprite(3, 8 + 8 * (player.x + 1) - bkg_x, 16 + 8 * (player.y + 1) - bkg_y);
 }
 
 // Donde funciona el juego en los mapas
