@@ -14,6 +14,9 @@
 //============================
 // ----- Functions ----- //
 //===========================
+// GameController
+void IniGame();
+
 
 // Background
 void Scroll_bkg();
@@ -55,6 +58,7 @@ extern void Enemy_Choose_dir();
 extern void Enemy_Closest_dir();
 extern UINT8 GetSlimeDistance();
 extern UINT8 Slime_Enemy_Collisions();
+extern UINT8 IniMap();
 
 // ----- Battle Game
 extern void BattleLoop();
@@ -102,8 +106,8 @@ struct Enemy enemies_array[5];
 //==========================
 //------IN BATTLE VARS------
 //==========================
-UINT8 frames_move;
 UINT8 avoiding;
+UINT8 eStamina;
 UINT8 eIndex;
 UINT8 fighting;
 // Estados de enemigos
@@ -114,19 +118,52 @@ UINT8 atk_flag;
 
 
 void main(){
+
+    
+    
+    IniGame();
+
+    // Para fluidez
+    disable_interrupts();
+    add_VBL(vbl_update);
+    add_VBL(Set_seed_rand);
+    set_interrupts(VBL_IFLAG);
+    enable_interrupts();
+
+    SHOW_SPRITES;
+    SHOW_BKG;
+    DISPLAY_ON;
+
+    while(1){
+        if(actualBank == 1){
+            SWITCH_ROM_MBC1(1);
+            vbl_count = 0;
+            fighting = FALSE;
+            IniMap();
+            MapLoop();
+        }
+        else if(actualBank == 2){
+            SWITCH_ROM_MBC1(2);
+            HideSprites();
+            BattleLoop();
+        }
+    }
+}
+
+void IniGame(){
     // Inicializar utils
     vbl_count = 0;
     distance = 0;
 
     // Battle vars
     eIndex = 0;          // Index enemigo a pelear
-    frames_move = 0;     // Cuantos pixeles se mueve slime en la batalla
     avoiding = FALSE;    // Bool estado cuando slime está esquivando
     fighting = FALSE;    // Bool estado activa cuando slime está en una batalla
 
 
     // Inicializar banks
     actualBank = 1;
+
 
     // Inicializar Animaciones
     state = TRUE;
@@ -216,38 +253,8 @@ void main(){
 
     //====== Flag sprite
     // ---Flag Slime.isMoving
-    set_sprite_tile(15, 4);
-    move_sprite(15, 0, 0);
-    // --- Flag Knight isMoving
-    //set_sprite_tile(15, 9);
-    //move_sprite(15, 0, 16);
-    // --- Flag Skeleton isMoving
-    //set_sprite_tile(16, 14);
-    //move_sprite(16, 0, 0);
-
-
-    // Para fluidez
-    disable_interrupts();
-    add_VBL(vbl_update);
-    add_VBL(Set_seed_rand);
-    set_interrupts(VBL_IFLAG);
-    enable_interrupts();
-
-    SHOW_SPRITES;
-    SHOW_BKG;
-    DISPLAY_ON;
-
-    while(1){
-        if(actualBank == 1){
-            SWITCH_ROM_MBC1(1);
-            MapLoop();
-        }
-        else if(actualBank == 2){
-            SWITCH_ROM_MBC1(2);
-            HideSprites();
-            BattleLoop();
-        }
-    }
+    //set_sprite_tile(15, 4);
+    //move_sprite(15, 0, 0);
 }
 
 void Check_scroll_bkg(){
@@ -295,12 +302,20 @@ void Slime_map_move(){
             if(isMoving){
                 for(i = 0; i < nEnemies; i++){
                     auxEnemy = &enemies_array[i];
-                    //Check_2x1_collisions();
-                    if(GetSlimeDistance() < 21){
-                        Enemy_Closest_dir();
+
+                    // Si el enemigo tiene Stamina
+                    if(auxEnemy -> resting == 0){
+                        //Check_2x1_collisions();
+                        if(GetSlimeDistance() < 21){
+                            Enemy_Closest_dir();
+                        }
+                        else{
+                            Enemy_Choose_dir();
+                        }
                     }
+                    // Si no tiene stamina, disminuir en 1 la cantidad de turnos que debe descansar
                     else{
-                        Enemy_Choose_dir();
+                        auxEnemy -> resting--;
                     }
                 }
                 frames_anim = 0;
@@ -374,7 +389,7 @@ void Slime_map_move(){
             for(k = 0; k < nEnemies; k++){
                 auxEnemy = &enemies_array[k];
                 if(Slime_Enemy_Collisions()){
-                    move_sprite(15, 8 + k * 8, 16);
+                    //move_sprite(15, 8 + k * 8, 16);
                     actualBank = 2;
                     eIndex = k;
                     fighting = TRUE;
@@ -549,6 +564,7 @@ void Enemy_2x1_map_move(){
     if(auxEnemy -> type == 's') nSprites = 4;
 
     
+    // Si el enemigo no se mueve, debe considerar el scroll
     if(!auxEnemy -> isMoving && scroll){    // Esta parte no tiene bugs
         for(j = 0; j < nSprites; j++){
             if(slime_dir == J_UP){

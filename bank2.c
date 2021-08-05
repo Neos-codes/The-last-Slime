@@ -27,6 +27,7 @@ extern UINT8 avoiding;
 
 // Estados de enemigos
 extern UINT8 eAtacking;
+extern UINT8 eStamina;
 extern UINT16 eFrames;
 extern UINT16 eTiming;
 extern UINT8 atk_flag;
@@ -122,10 +123,12 @@ void IniBattle(){
     isMoving = FALSE;
 
     // Inicializar parametros de enemigos en batalla
+    eStamina = auxEnemy -> stamina;
     eAtacking = FALSE;     // Estado si enemigo está atacando
     eFrames = 0;           // Frames de juego que pasan para que eAtacking se active (compara con eTiming)
     eTiming = 0;           // Frames de juego que deben pasar para que eAtacking se active
     atk_flag = FALSE;      // TRUE cuando el enemigo alcanza la zona de juego del slime (verificacion de daño)
+    avoiding = FALSE;
 }
 
 void BattleLoop(){
@@ -139,6 +142,7 @@ void BattleLoop(){
         if(!vbl_count)
             wait_vbl_done();
         vbl_count = 0;
+
 
         //====== ANIMACIONES ======//
 
@@ -175,6 +179,12 @@ void BattleLoop(){
         //======== ENEMIGO ATACANDO ========//
         if(eAtacking){
             Enemy_Attack();
+        }
+
+
+        // Si cambiamos de bank, significa que el enemigo se cansó
+        if(actualBank == 1){
+            return;
         }
 
 
@@ -368,7 +378,7 @@ void Enemy_Atk_Move(){
         if(eFrames == 41){
             eFrames = 0;
             eAtacking = FALSE;
-            auxEnemy -> stamina--;   // Quitar 1 de estamina al enemigo
+            eStamina--;   // Quitar 1 de estamina al enemigo
         }
     }
     // Mover al enemigo en base de frames
@@ -379,6 +389,10 @@ void Collision_Atk(){
     
     // Por el momento el daño es solo cuando el slime está en el centro
     if(slime_dir == 0){
+        
+        // Reiniciar en CheckPoint
+        // TO DO CHECKPOINT
+        
         // Animacion de daño
         if(player.hp > 1){
             player.hp--;
@@ -393,7 +407,13 @@ void Collision_Atk(){
     }
 
     // Si el enemigo se queda sin stamina
-    if(auxEnemy -> stamina == 0){
+    if(eStamina == 0){
+        // Return to Menu
+        auxEnemy -> resting = 3;
+        actualBank = 1;
+        return;
+        
+        
         // Mover sprites base del enemigo
         move_sprite(auxEnemy -> sprite, 112, 16);
         move_sprite(auxEnemy -> sprite + 1, 112, 24);

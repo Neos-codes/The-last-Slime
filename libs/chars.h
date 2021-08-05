@@ -14,6 +14,7 @@ struct Slime{
 struct Enemy{
     unsigned char type;   // Type of enemy: Rookie, Monster, etc
     UINT8 stamina;        // Enemy stamina before get tired
+    UINT8 resting;        // how manu turns must rest the enemy to move again
     UINT16 x, y;          // Enemy position (x, y)
     UINT8 isMoving;       // True when there is no obstacle in his direction
     UINT8 sprite;         // Primer sprite del enemigo

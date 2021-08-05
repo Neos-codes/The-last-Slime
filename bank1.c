@@ -28,10 +28,12 @@ extern UINT8 actualBank;
 //================================
 // Slime
 extern UINT8 input;             // Aqui guardamos el input completo
+extern UINT8 slime_dir;
 extern UINT8 isMoving;          // Flag TRUE si el Slime se esta moviendo
 extern UINT8 pixels_moved;      // Cantidad de pixeles (y frames) mientras el slime está en movimiento (son 16 pixeles por movimiento)
 extern UINT8 frames_anim;       // Frames de animaciones (ejemplo, 30 frames = 1 cambio de sprite de animacion del Slime en idle)
 extern UINT8 lastSlime_x, lastSlime_y;
+extern UINT8 state;
 // Utils
 //----- Iterations
 extern UINT8 i, j;
@@ -63,9 +65,40 @@ UINT8 dir_x, dir_y;
 
 //=====================================
 //---------Internal Functions----------
-//=====================================
-
 // ----- Definiciones de funciones
+void IniMap(){
+    // Inicializar Animaciones
+    state = TRUE;
+    input = 0;
+    slime_dir = 0;
+    isMoving = FALSE;
+    pixels_moved = 0;
+    frames_anim = 0;
+
+    // Inicializar parametros de enemigos
+    for(i = 0; i < nEnemies; i++){
+        enemies_array[i].isMoving = FALSE;
+        //enemies_array[i].steps = 0;
+        //enemies_array[i].stamina = 3;
+
+        // Posicionar enemigos
+        move_sprite(enemies_array[i].sprite, 8 + 8 * enemies_array[i].x, 16 + 8 * enemies_array[i].y);
+        move_sprite(enemies_array[i].sprite + 1, 8 + 8 * enemies_array[i].x, 16 + (8 * enemies_array[i].y + 1));
+        if(enemies_array[i].type == 's'){
+            move_sprite(enemies_array[i].sprite + 1, 8 + 8 * (enemies_array[i].x + 1), 16 + 8 * enemies_array[i].y);
+            move_sprite(enemies_array[i].sprite + 1, 8 + 8 * (enemies_array[i].x + 1), 16 + (8 * enemies_array[i].y + 1));
+        }
+    }
+
+    // Load Map
+    set_bkg_tiles(0, 0, 30, 30, testMap);
+
+    // Set Slime Position
+    move_sprite(0, 8 + 8 * player.x, 16 + 8 * (player.y + 1));
+    move_sprite(1, 8 + 8 * player.x, 16 + 8 * player.y);
+    move_sprite(2, 8 + 8 * (player.x + 1), 16 + 8 * player.y);
+    move_sprite(3, 8 + 8 * (player.x + 1), 16 + 8 * (player.y + 1));
+}
 
 // Donde funciona el juego en los mapas
 void MapLoop();
@@ -130,11 +163,11 @@ void Enemy_Choose_dir(){
     if(auxEnemy -> steps != 3){
         UINT8 k;
         // Revisar si aun se puede mover en esa direccion
-        for(k = 0; k < 3; k++){
+        for(k = 0; k < 3; k++){ 
             Check_2x1_collisions();
             // Si no se puede mover, cambiar direccion
             if(!auxEnemy -> isMoving){
-                //auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
+                 //auxEnemy -> dir = (auxEnemy -> dir + 1) % 4;
                 auxEnemy -> dir = rand_ % 4;
                 auxEnemy -> steps = 0;
                 rand_++;
@@ -405,7 +438,7 @@ UINT8 GetSlimeDistance(){
 }
 
 UINT8 Slime_Enemy_Collisions(){
-    if(player.x == auxEnemy -> x && player.y == auxEnemy -> y && auxEnemy -> stamina != 0){
+    if(player.x == auxEnemy -> x && player.y == auxEnemy -> y && auxEnemy -> resting == 0){
         // Fight!
         return TRUE;
     }
