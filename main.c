@@ -225,7 +225,7 @@ void IniGame(){
     //==========================
     // Set Slime Sprites
     //==========================
-    set_sprite_data(0, 9, slime);
+    set_sprite_data(0, 13, slime);
     set_sprite_tile(0, 0);
     set_sprite_tile(1, 1);
     set_sprite_tile(2, 2);
@@ -236,20 +236,32 @@ void IniGame(){
     move_sprite(2, 8 + 8 * (player.x + 1), 16 + 8 * player.y);
     move_sprite(3, 8 + 8 * (player.x + 1), 16 + 8 * (player.y + 1));
 
+    /*
+    set_sprite_tile(20, 9);
+    set_sprite_tile(21, 10);
+    set_sprite_tile(22, 11);
+    set_sprite_tile(23, 12);
+    move_sprite(20, 8, 16);
+    move_sprite(21, 8, 24);
+    move_sprite(22, 16, 16);
+    move_sprite(23, 16, 24);
+    */
+
+
     //=========================
     // Set enemy test Sprites
     //=========================
-    set_sprite_data(9, 7, Enemies);
+    set_sprite_data(13, 7, Enemies);
     // Knight
-    set_sprite_tile(4, 9);
-    set_sprite_tile(5, 10);
+    set_sprite_tile(4, 13);
+    set_sprite_tile(5, 14);
     move_sprite(4, 8 + 8 * enemies_array[0].x, 16 + 8 * enemies_array[0].y);
     move_sprite(5, 8 + 8 * enemies_array[0].x, 16 + 8 * (enemies_array[0].y + 1));
     // Skeleton
-    set_sprite_tile(6, 12);
-    set_sprite_tile(7, 13);
-    set_sprite_tile(8, 14);
-    set_sprite_tile(9, 15);
+    set_sprite_tile(6, 16);
+    set_sprite_tile(7, 17);
+    set_sprite_tile(8, 18);
+    set_sprite_tile(9, 19);
     move_sprite(6, 8 + 8 * enemies_array[1].x, 16 + 8 * enemies_array[1].y + 1);   // .y + 1 por animacion idle
     move_sprite(7, 8 + 8 * enemies_array[1].x, 16 + 8 * (enemies_array[1].y + 1));
     move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y + 1);  // .y + 1 por anim idle
@@ -689,7 +701,7 @@ void Enemy_anim_idle(){
         UINT8 type = auxEnemy -> type;
         if(state){
             if(type == 'r')
-                set_sprite_tile(spr, 11);
+                set_sprite_tile(spr, 15);
             else if (type == 's') {
                 scroll_sprite(spr, 0, 1);
                 scroll_sprite(spr + 2, 0, 1);
@@ -697,7 +709,7 @@ void Enemy_anim_idle(){
         }
         else{
             if(type == 'r')
-                set_sprite_tile(spr, 9);
+                set_sprite_tile(spr, 13);
             else if(type == 's'){
                 scroll_sprite(spr, 0, -1);
                 scroll_sprite(spr + 2, 0, -1);   

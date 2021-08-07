@@ -155,7 +155,8 @@ void BattleLoop(){
         //====== ANIMACIONES ======//
 
         Enemy_anim_idle();
-        Slime_anim_idle();
+        if(!isMoving)
+            Slime_anim_idle();
 
         input = joypad();
 
@@ -265,6 +266,12 @@ void Avoid_Slime(){
             scroll_sprite(3, -4, 0);
         }
     }
+    if(pixels_moved == 8){
+        set_sprite_tile(0, 10);
+        set_sprite_tile(1, 9);
+        set_sprite_tile(2, 11);
+        set_sprite_tile(3, 12);
+    }
 
     pixels_moved++;
 
@@ -304,6 +311,10 @@ void Return_toCenter(){
         pixels_moved = 0;
         slime_dir = 0;
         isMoving = FALSE;
+        set_sprite_tile(0, 0);
+        set_sprite_tile(1, 1);
+        set_sprite_tile(2, 2);
+        set_sprite_tile(3, 3);
     }
 }
 
