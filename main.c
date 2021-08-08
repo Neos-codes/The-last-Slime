@@ -236,17 +236,6 @@ void IniGame(){
     move_sprite(2, 8 + 8 * (player.x + 1), 16 + 8 * player.y);
     move_sprite(3, 8 + 8 * (player.x + 1), 16 + 8 * (player.y + 1));
 
-    /*
-    set_sprite_tile(20, 9);
-    set_sprite_tile(21, 10);
-    set_sprite_tile(22, 11);
-    set_sprite_tile(23, 12);
-    move_sprite(20, 8, 16);
-    move_sprite(21, 8, 24);
-    move_sprite(22, 16, 16);
-    move_sprite(23, 16, 24);
-    */
-
 
     //=========================
     // Set enemy test Sprites
@@ -267,16 +256,12 @@ void IniGame(){
     move_sprite(8, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * enemies_array[1].y + 1);  // .y + 1 por anim idle
     move_sprite(9, 8 + 8 * (enemies_array[1].x + 1), 16 + 8 * (enemies_array[1].y + 1));
 
-    //====== Flag sprite
-    // ---Flag Slime.isMoving
-    //set_sprite_tile(15, 4);
-    //move_sprite(15, 0, 0);
 }
 
 void Check_scroll_bkg(){
     // 160 debe ser width_map - 80
     // dir = RIGHT &&  MITAD DE PANTALLA  && MEDIA PANTALLA ANTES DEL BORDE DERECHO DEL MAPA
-    // BUGS
+    
     if(slime_dir == J_RIGHT && 8 * player.x < 144 && 8 * player.x - bkg_x > 72){
         scroll = TRUE;
         bkg_x += 16;
