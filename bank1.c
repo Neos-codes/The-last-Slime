@@ -445,6 +445,7 @@ UINT8 GetSlimeDistance(){
 }
 
 UINT8 Slime_Enemy_Collisions(){
+    // Si el player cae ne la misma casilla que un enemigo y el enemigo no está descansando... PELEAR!
     if(player.x == auxEnemy -> x && player.y == auxEnemy -> y && auxEnemy -> resting == 0){
         // Fight!
         return TRUE;
